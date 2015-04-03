@@ -9,8 +9,7 @@ var bcrypt = require('bcryptjs');
 
 module.exports = {
   'new': function(req, res){
-  
-    res.view('session/login');
+    res.redirect('session/login');
   },
   
   'destroy': function(req, res, next){

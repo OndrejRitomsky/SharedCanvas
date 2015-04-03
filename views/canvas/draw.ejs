@@ -1,0 +1,55 @@
+<nav id="canvasNav" class="navbar navbar-inverse">
+      <ul id="actions" class="nav navbar-nav">
+        <li><a href="" class="btn">
+            <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+        </a></li>
+        <li><a href="r" class="btn">
+            <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
+        </a></li>
+        <li><a href="" class="btn">
+            <span class="glyphicon glyphicon-off" aria-hidden="true"></span>
+        </a></li>
+      </ul>  
+
+</nav>
+<main>
+  <div class="row">
+    <div id="canvasLeftColumn" class="col-md-1">
+      <div class="canvasTools">
+        <div class="canvasCursorType">
+          <h4>Drawing tools</h4>
+          <input type="button" class="btn" id="canvasPen" value="P" /> 
+          <input type="button" class="btn" id="canvasRubber" value="R" />
+
+        </div>
+        <div class="canvasColors">       
+          <h4>Color</h4>
+          <input type="text" size="3" id="canvasRed"/><br/>
+          <input type="text" size="3" id="canvasGreen"/><br/>
+          <input type="text" size="3" id="canvasBlue"/><br/>
+          <input type="text" size="3" id="canvasResultColor" disabled/><br/>
+        </div>
+
+      </div>
+    </div>
+
+
+    <div id="canvasRightColumn" class="col-md-11">
+      <canvas width="800" height="600" id="sharedCanvas">
+        <script>
+          var canvas = document.getElementsByTagName('canvas')[0];
+          canvas.width  = 800;
+          canvas.height = 600; 
+          canvas.style.width  = '800px';
+          canvas.style.height = '600px';
+        </script>
+
+      </canvas>
+
+    </div>
+
+  </div>
+
+
+</main>
+  
