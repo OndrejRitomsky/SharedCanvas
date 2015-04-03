@@ -6,7 +6,7 @@
  * "is who they say they are", a csrf token tells the server "you are where you say you are".
  *
  * When enabled, all non-GET requests to the Sails server must be accompanied by
- * a special token, identified as the '_csrf' parameter.
+ * a special token, idntified as the '_csrf' parameter.
  *
  * This option protects your Sails app against cross-site request forgery (or CSRF) attacks.
  * A would-be attacker needs not only a user's session cookie, but also this timestamped,
@@ -48,7 +48,7 @@
 *                                                                           *
 ****************************************************************************/
 
-// module.exports.csrf = false;
+module.exports.csrf = true;
 
 /****************************************************************************
 *                                                                           *

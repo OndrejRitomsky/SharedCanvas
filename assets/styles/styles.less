@@ -1,0 +1,85 @@
+@background1: black;
+@text1: white;
+
+@background2: lightgray;
+@text2: black;
+
+@decoration: white;
+
+@links: #337ab7;
+@linksHover: #286090;
+
+
+body {
+  padding-top: 60px;
+  padding-bottom: 40px;
+  background-color: @background1;
+}
+
+#mainFooter div{
+  display: inline;
+  color: @text1;
+}
+
+#quickLogin{
+  margin-top: 10px;  
+
+  input{
+    height: 32px;  
+  }
+
+  .btn{
+    margin-top: -2px;
+    color: @text2;
+  }
+}
+.jumbotron {
+  background-color: white;
+}
+#loginForm {
+  margin-left: auto;
+  margin-right: auto;
+  width: 30%;
+  color: Black;
+  border: 3px solid @decoration;
+  border-radius: 10px;
+  padding-left: auto;
+  padding-right: auto;
+  background-color: @background2;
+}
+
+#login {
+  text-align: center;
+
+  input[type="password"], input[type="text"]{
+    width: 80%; 
+    color: @text2;
+  }
+  input[type="submit"]{
+    margin-bottom: 10px;
+    color: @text2;
+  }
+}
+
+
+#myNav > li{
+  >a{
+    text-decoration: initial;
+    color: @links !important; 
+    font-size: 120%;
+    font-weight: bold; 
+    
+  }
+  >a:hover{
+    text-decoration: underline;
+    color: @linksHover !important; 
+  }  
+}
+#quickLogout > li {
+  >a {
+    color: @links;
+  }
+  >a:hover{
+    color: @linksHover;
+  }
+}

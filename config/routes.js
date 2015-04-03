@@ -33,8 +33,15 @@ module.exports.routes = {
   ***************************************************************************/
 
   '/': {
-    view: 'homepage'
-  }
+    view: 'static/index'
+  },
+  
+  
+  // currently blueprints.js actions == true !!! -> autorutes
+  /*'/user/registration': {
+    controller: 'UserController',
+    action: 'registration'
+  }*/ 
 
   /***************************************************************************
   *                                                                          *
