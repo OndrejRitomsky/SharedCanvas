@@ -38,7 +38,6 @@ module.exports = {
       delete obj.password;
       delete obj.passwordCheck;
       delete obj.encPassword;
-      delete obj.salt;
      // delete obj.user_id;
       delete obj._csrf;
       return obj;

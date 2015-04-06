@@ -13,6 +13,8 @@ function SharedCanvas(){
   this.oldPos = null;
   this.firedOnce = false;
   this.mousedownID = -1;
+  
+  this.io = null;
 }
 
 
@@ -33,8 +35,9 @@ SharedCanvas.COLOR_BLUE = "BLUE";
 
 
 
-SharedCanvas.prototype.initialization = function(canvas){
-
+SharedCanvas.prototype.initialization = function(canvas, io){
+  this.io = io;
+    
   this.canvas = canvas;
   this.context = this.canvas.getContext("2d");
   
@@ -72,6 +75,7 @@ SharedCanvas.prototype.getMousePos = function(evt) {
   return {
     x:  Math.round((evt.clientX-rect.left)/(rect.right-rect.left)*canvas.width) +0.5,
     y:  Math.round((evt.clientY-rect.top)/(rect.bottom-rect.top)*canvas.height) +0.5
+
   };  
 }
 
@@ -149,7 +153,6 @@ SharedCanvas.prototype.onMouseUp = function(event) {
 SharedCanvas.prototype.onMouseMove = function(event) { 
   this.mouseEvt = event;
 }
-
 
 // ---------------------------------------
 /*

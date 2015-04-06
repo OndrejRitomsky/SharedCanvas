@@ -106,12 +106,10 @@ module.exports.sockets = {
   * app's security.                                                          *
   *                                                                          *
   ***************************************************************************/
-  // beforeConnect: function(handshake, cb) {
-  //   // `true` allows the connection
-  //   return cb(null, true);
-  //
-  //   // (`false` would reject the connection)
-  // },
+ /* beforeConnect: function(handshake, cb) {
+    console.log("CONNECT"); 
+    console.log(handshake);
+  },*/
 
 
   /***************************************************************************
@@ -120,10 +118,49 @@ module.exports.sockets = {
   * disconnects                                                              *
   *                                                                          *
   ***************************************************************************/
-  // afterDisconnect: function(session, socket, cb) {
-  //   // By default: do nothing.
-  //   return cb();
-  // },
+  afterDisconnect: function(session, socket, cb) {
+    // By default: do nothing.
+    
+    console.log("---------------------------------");
+    console.log(socket.id);
+    if (!socket.id){
+      return cb();
+    }
+    
+    Canvas.findOne().where({ userSocket: socket.id }).exec(function(err, canvas) {      
+        if (err) return next(err);
+        
+        if(!canvas){
+          console.log("nebol autor");
+          return cb();
+        }
+      
+        Canvas.destroy({userSocket: socket.id }, function(err, res){ 
+          if(res){
+            console.log("deleted");
+           
+            //console.log(sails.io.sockets.adapter.rooms[canvas.id]);           
+            //uz je leavnuty 
+            //socket.leave(canvas.id);
+            // este vsetkych vyhodi
+            
+
+            sails.io.sockets.in(canvas.id).sockets.forEach(function(s){
+              console.log("kick");
+              s.emit("forcedLeave",{msg:"You have been forced to leave room"});
+              s.leave(canvas.id);
+            });
+     
+            
+            return cb();
+          } else {
+            console.log("not deleted");
+            return cb();
+          }
+        
+        });     
+    });
+  }
 
 
 

@@ -14,6 +14,7 @@ module.exports = {
   
   // Create user with parameters from "registration.ejs"
   'create': function(req, res, next){
+    
     User.create(req.params.all(), function userCreated(err, user){
       if (err) {
         req.session.flash = {

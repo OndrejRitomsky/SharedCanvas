@@ -30,10 +30,10 @@ module.exports = {
       res.redirect('session/new');
       return;
     }
-    
-    User.findOneByEmail(req.param('email')).exec(function(err, user) {
-      if (err) return next(err);
-      
+
+    User.findOneByEmail (req.param('email'), function(err, user) {
+
+      if (err) return next(err); 
       var userNotFoundError = {message: "Email address or password is wrong"};
       
       if(!user){
