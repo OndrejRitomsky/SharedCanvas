@@ -4,6 +4,8 @@
  * @description :: Server-side logic for managing canvas
  * @help        :: See http://links.sailsjs.org/docs/controllers
  */
+var serverSharedCanvas = require('./ServerSharedCanvas.js');
+                         
 
 module.exports = {
   'new': function(req, res){
@@ -12,10 +14,16 @@ module.exports = {
 
   // no route, just get, check perm   //req.session.User = {};
       //console.log(req.session.User);
+  
+  'update': function(req,res){
+    
+   // console.log(req);
+    //console.log(serverSharedCanvas.rooms);
+    serverSharedCanvas.addPackages(req.body.msg, req.body.id);
+  },
       
   'subscribe': function(req, res, next){
       
-      console.log(req.params);
       var cc = req.session.correctConnect,
           author = req.session.author,
           canvasId = req.session.canvasId,
@@ -45,7 +53,11 @@ module.exports = {
             /*   var socket = req.socket;
               var io = sails.io;*/
             req.socket.join(canvas.id);
-            req.socket.emit("onCreate",{id: canvas.id, loggedOnly: canvas.loggedOnly, msg: "You have created room"});
+
+            serverSharedCanvas.createRoom(req.socket, socketId, canvas.id);
+            //serverSharedCanvas.start(sails.io, req.socket, canvas.id);
+            
+          
             req.session.author = null;
             req.session.correctConnect = null;
             req.session.canvasId = null;
@@ -53,12 +65,15 @@ module.exports = {
           }
           
         }); 
-      } else if (!author && cc && canvasId){
+      } else if (!author && cc && canvasId && socketId){
+        console.log(socketId);
         req.session.author = null;
         req.session.correctConnect = null;
         req.session.canvasId = null;
-        req.socket.join(canvasId);
-        req.socket.emit("onJoin",{msg:"You have joined room"});
+        
+        serverSharedCanvas.joinRoom(req.socket, socketId, canvasId);
+
+        
         next();
       }
     

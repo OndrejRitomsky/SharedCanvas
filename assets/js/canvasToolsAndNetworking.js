@@ -1,5 +1,5 @@
 var sharedCanvas;
-
+var room = null;
 $(document).ready(function() {
   
   
@@ -45,7 +45,7 @@ $(document).ready(function() {
     showInputColor(sharedCanvas.colorRed,sharedCanvas.colorGreen,sharedCanvas.colorBlue);
   });
   $('#canvasCursorWidth').bind('input', function() {
-    sharedCanvas.cursorWidth = $('#canvasCursorWidth').val();
+    sharedCanvas.changeCursorWidth($('#canvasCursorWidth').val());
   });
   
   
@@ -69,6 +69,7 @@ $(document).ready(function() {
   });
   
   io.socket.on('onCreate', function notificationReceivedFromServer ( message ){    
+    room = message.id;
     var dialog = $( "#dialog" );
     dialog.prop('title', 'Invite Link:');
     
@@ -87,16 +88,46 @@ $(document).ready(function() {
        dialog.dialog("open");
     });
     $( "#networkMessage" ).text(message.msg);
+    
+    console.log("abc");
+ 
+    io.socket.get("/csrfToken",function(e){
+      setInterval(function(){
+        io.socket.post("/canvas/update", {id:room, msg: sharedCanvas.getChangesBuffer(), _csrf: e._csrf});
+      }, 2000);      
+    });
+    
+    sharedCanvas.saveToBuffer = true;
+
+    /*setInterval(function(){
+      io.socket.post("/canvas/update",{msg: "rozosielam tuto sprav"});
+    },1000);*/
+    
   });
   
   io.socket.on('onJoin', function notificationReceivedFromServer ( message ){    
-    $( "#networkMessage" ).text(message.msg);
+    room = message.id;
+    $( "#networkMessage" ).text(message.msg);  
+      sharedCanvas.saveToBuffer = true;
+      io.socket.get("/csrfToken",function(e){
+        setInterval(function(){
+          io.socket.post("/canvas/update", {id:room, msg: sharedCanvas.getChangesBuffer(), _csrf: e._csrf});
+        }, 2000);       
+      });
   });
   
-  io.socket.on('forcedLeave', function(message){
-    $( "#networkMessage" ).text(message.msg+", author left"); 
+  io.socket.on('justMessage', function(message){
+    $( "#networkMessage" ).text(message.msg); 
+  });
+  var k = 0;
+  
+  io.socket.on('updateMessage', function(message){
+    console.log("dostal som update");
+    sharedCanvas.updateCanvas(message.msg);
   });
 
+  
+  
   // SUBSCRIBE TO CANVAS (JOIN/CREATE ROOM)
   io.socket.get("/canvas/subscribe");
   

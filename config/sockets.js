@@ -10,6 +10,7 @@
  * http://sailsjs.org/#/documentation/reference/sails.config/sails.config.sockets.html
  */
 
+var serverSharedCanvas = require('../api/controllers/ServerSharedCanvas.js');
 module.exports.sockets = {
 
 
@@ -130,10 +131,22 @@ module.exports.sockets = {
     Canvas.findOne().where({ userSocket: socket.id }).exec(function(err, canvas) {      
         if (err) return next(err);
         
-        if(!canvas){
+      
+        var room = serverSharedCanvas.isInRoom(socket.id);
+        
+        if(!canvas){          
           console.log("nebol autor");
-          return cb();
+          if(!room){  
+            console.log("nebol v roomke");
+            return cb();
+          } else {
+            console.log("bol v roomke");
+            serverSharedCanvas.leaveRoom(socket.id,room);
+            return cb();            
+          }  
         }
+        
+      
       
         Canvas.destroy({userSocket: socket.id }, function(err, res){ 
           if(res){
@@ -143,13 +156,25 @@ module.exports.sockets = {
             //uz je leavnuty 
             //socket.leave(canvas.id);
             // este vsetkych vyhodi
-            
+            serverSharedCanvas.deleteRoom(socket.id, canvas.id);
 
-            sails.io.sockets.in(canvas.id).sockets.forEach(function(s){
+        
+
+             /* if ("'"+canvas.id+"'" in sockets[s].rooms){
+                console.log("v mojej roomke je tento typek");
+
+              } else 
+                console.log("nie je v roomke")
+
+            }*/
+
+            //console.log();
+            console.log("---------------"); 
+            //console.log(sails.io.sockets);
+            /*sails.io.in(canvas.id).forEach(function(s){
               console.log("kick");
-              s.emit("forcedLeave",{msg:"You have been forced to leave room"});
-              s.leave(canvas.id);
-            });
+             
+            });*/
      
             
             return cb();
@@ -160,8 +185,12 @@ module.exports.sockets = {
         
         });     
     });
+  }, 
+  
+  test: function(a,b){
+    console.log("???---???");
+    
   }
-
 
 
 
