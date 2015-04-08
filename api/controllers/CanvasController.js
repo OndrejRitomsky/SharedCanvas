@@ -16,25 +16,28 @@ module.exports = {
       //console.log(req.session.User);
   
   'update': function(req,res){
-    
+    /* we need to check if host didnt close canvas so others dont try to add packages*/
    // console.log(req);
     //console.log(serverSharedCanvas.rooms);
-    serverSharedCanvas.addPackages(req.body.msg, req.body.id);
+    serverSharedCanvas.addPackages(req.body.msg, req.body.rid);
   },
       
   'subscribe': function(req, res, next){
       
-      var cc = req.session.correctConnect,
-          author = req.session.author,
+    
+      if (!req.session.correctConnect)
+        return
+    
+      var author = req.session.author,
           canvasId = req.session.canvasId,
           socketId = req.socket.id;
     
-      console.log("CC "+cc);
+     /*console.log("CC "+cc);
       console.log("A "+author);
       console.log("cID "+canvasId);
-      console.log("sID "+socketId);
+      console.log("sID "+socketId);*/
       
-      if (author && cc && !canvasId && socketId){
+      if (author && !canvasId && socketId){
         var params = {};
         params.userSocket = socketId; // who created this canvas
         params.loggedOnly = false; // can anybody who knows link join?
@@ -65,7 +68,7 @@ module.exports = {
           }
           
         }); 
-      } else if (!author && cc && canvasId && socketId){
+      } else if (!author && canvasId && socketId){
         console.log(socketId);
         req.session.author = null;
         req.session.correctConnect = null;

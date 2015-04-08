@@ -16,16 +16,21 @@ function SharedCanvas(){
   
   this.io = null;
   
-  this.buffer = []; // [ [W,R,G,B,(A,P1,p2)*], [W,R,G,B,(A,P1,p2)*]
+  this.buffer = []; // [S,W,R,G,B,(A,X,Y)*, ...]
   this.settingsChanged = true;
   
   this.saveToBuffer = false;
   
   this.oldCanvasState = null; // not setting state, but image! 
+  
+  this.lastActionMoveTo = null;
+  this.needReMoveTo = null;
+  this.reMoveToPos = {x:0,y:0};
+  
 }
 
 
-SharedCanvas.CURSOR_DRAWING_UPDATE_RATE = 10;
+SharedCanvas.CURSOR_DRAWING_UPDATE_RATE = 5;
 
 SharedCanvas.CANVAS_WIDTH = 800;
 SharedCanvas.CANVAS_HEIGHT = 600;
@@ -52,40 +57,68 @@ SharedCanvas.prototype.initialization = function(canvas, io){
   this.context.lineJoin= "mitter"; 
   //cxt.lineCap= "butt|round|square";
   //cxt.lineJoin= "round|bevel|miter"; 
- this.settingsChanged = true;
+  this.settingsChanged = true;
+  
+  // ---------- !!!!!!!!!!!!!!!!!!!!!!! ----------------
+  this.oldCanvasState = this.context.createImageData(SharedCanvas.CANVAS_WIDTH, SharedCanvas.CANVAS_HEIGHT);
 }
 
 
+
+// uid vymazat
 SharedCanvas.prototype.updateCanvas = function(packages){
   this.context.save();
-  console.log(packages);  
-  
+
+  if (this.lastActionMoveTo)
+    this.needReMoveTo=true;
+  // ---------- !!!!!!!!!!!!!!!!!!!!!!! ----------------
+  //this.context.putImageData(this.oldCanvasState, 0 , 0);
+
   for(var p in packages){
-    var package = packages[p];
+    var package = packages[p].buffer;
+    var uid = packages[p].uid;
+
     
-    this.context.lineWidth = package[0];  
-    this.context.strokeStyle = 'rgba('+package[1]+','+package[2]+','+package[3]+',1)';
-   
-    this.context.beginPath();
-    for (var i = 4; i < package.length; i=i+3){
+    var i = 0;
+    while(i < package.length){
       if(package[i]=='MT'){
+        this.context.beginPath();
         this.context.moveTo(package[i+1],package[i+2]);
+       
+        i += 3; 
         continue;
       } 
       if(package[i]=='LT'){
         this.context.lineTo(package[i+1],package[i+2]);
+ 
+         this.context.stroke(); 
+        i += 3;
         continue;
       } 
-    }
-    this.context.stroke();       
+      if(package[i]=='S'){         
+        // settings out of beginpath?
+        this.context.lineWidth = package[i+1];  
+        this.context.strokeStyle = 'rgba('+package[i+2]+','+package[i+3]+','+package[i+4]+',1)';
+        //package[i+2]
+        i += 5;        
+        continue;
+      } 
+      i++; // ?
+      
+    }    
   }  
+   
+  
+  //this.oldCanvasState = this.context.getImageData(0, 0, SharedCanvas.CANVAS_WIDTH, SharedCanvas.CANVAS_HEIGHT);
+  
 
   this.context.restore();
 
 }
 
 
-
+  var sendId = 0;
+var getId = 0;
 
 SharedCanvas.prototype.changeCursorWidth = function(value){
   this.settingsChanged = true;
@@ -95,16 +128,54 @@ SharedCanvas.prototype.changeCursorWidth = function(value){
 SharedCanvas.prototype.getChangesBuffer = function(){
   var res = this.buffer;
   this.buffer = [];
-  this.settingsChanged = true;
+  
+  if(this.saveToBuffer){
+    var params = [this.cursorWidth, this.colorRed, this.colorGreen, this.colorBlue];
+    this.addChangesToBuffer('S', params); 
+  }
+  this.settingsChanged = false;
+  
+  if (res.length<=5)
+    return [];
+  
+  
+  /* if last action was MT, we ll splice it out and add it to next buffer.*/
+  if (lastMT){
+    var i = res.length-1;
+    var ind = -1;
+    while(i>=0){
+      if (res[i]=="MT"){
+        ind = i;
+        break;
+      }
+      i--;
+    }
+    
+    if (ind>0){
+      var lastMTAction = res.splice(ind,3); 
+      this.addChangesToBuffer('MT', [lastMTAction[1],lastMTAction[2]]);
+     
+    }
+  }
+  lastMT = null;
+
+
   return res;
 }
+var lastMT = null;
 SharedCanvas.prototype.addChangesToBuffer = function(action, params){
-  if (action!='MT' && action!='LT')
+  if (action!='MT' && action!='LT' && action!='S')
     return;
   
-  this.buffer[this.buffer.length-1].push(action);
+  if(action=='MT'){
+    lastMT = true;
+  } else if(action=='LT'){
+    lastMT = false;
+  } 
+  
+  this.buffer.push(action);
   for (var i = 0; i < params.length; i++){
-    this.buffer[this.buffer.length-1].push(params[i]);
+    this.buffer.push(params[i]);
   }
 }
 
@@ -141,15 +212,24 @@ SharedCanvas.prototype.getMousePos = function(evt) {
   };  
 }
 
+
 SharedCanvas.prototype.moveTo = function(x, y){
-  if(this.saveToBuffer)
+  if(this.saveToBuffer){
     this.addChangesToBuffer('MT', [x, y]); 
-  this.context.moveTo(x, y);   
+    
+  }
+  this.lastActionMoveTo = true;
+  this.reMoveToPos.x = x;
+  this.reMoveToPos.y = y;
+  this.context.moveTo(x, y); 
+  
 }
 
 SharedCanvas.prototype.lineTo = function(x, y){
-  if(this.saveToBuffer)
+  if(this.saveToBuffer){
     this.addChangesToBuffer('LT', [x, y]); 
+  }
+  this.lastActionMoveTo = false;
   this.context.lineTo(x, y);   
 }
 
@@ -159,7 +239,6 @@ SharedCanvas.prototype.whilemousedown = function() {
 
   if (this.mouseEvt!=null){
   
-    
     var pos = this.getMousePos(this.mouseEvt);
     
     if (!this.firedOnce){
@@ -167,7 +246,7 @@ SharedCanvas.prototype.whilemousedown = function() {
       this.moveTo(pos.x,pos.y);
       this.counter = (this.counter + 1) % 2;
       this.firedOnce = true;  
-      
+    
       return;
     }
     
@@ -178,12 +257,19 @@ SharedCanvas.prototype.whilemousedown = function() {
       } else {
         this.moveTo(pos.x,pos.y);
       }
+
     }
     
     if (this.counter==1){
+      if(this.needReMoveTo){
+        this.context.moveTo(this.reMoveToPos.x,this.reMoveToPos.y);
+        this.needReMoveTo = false;
+      }
+      
       this.lineTo(pos.x, pos.y);
       this.context.stroke();       
       this.oldPos=pos;
+
     }
     
     this.counter = (this.counter + 1) % 2;
@@ -199,12 +285,8 @@ SharedCanvas.prototype.onMouseDown = function(event) {
      this.context.strokeStyle = 'rgba('+this.colorRed+','+this.colorGreen+','+this.colorBlue+',1)';
     
      if(this.settingsChanged && this.saveToBuffer){
-       var nbuffer = [];
-       nbuffer.push(this.cursorWidth);
-       nbuffer.push(this.colorRed);
-       nbuffer.push(this.colorGreen);
-       nbuffer.push(this.colorBlue);
-       this.buffer.push(nbuffer);
+       var params = [this.cursorWidth, this.colorRed, this.colorGreen, this.colorBlue];
+       this.addChangesToBuffer('S', params);   
        this.settingsChanged = false;
      }
     

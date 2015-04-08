@@ -7,24 +7,11 @@ module.exports = {
   rooms : [],
   socketIdToRoom: {},  /* We could map socketId in room/canvas in database, currently we map only creatorsocketit to canvas */
   socketIdToSocket: {}, /* and we wont map to db socketId -> socket since socket is in memory anyway */
-  roomToBuffer: {},
+  roomToBufferAndUid: {}, //{buffer:buffer, uid:id} we give 0 1 2 3 4.. ID to every user in the room
   roomToUpdateID: {},
+
+  UPDATE_RATE: 30,
   
-  /*start: function(io, socket, room){
-    this.io = io;
-    this.socket = socket;
-    this.room = room;
-   
-  
-    this.io.on("updateMessage", function(msg){
-      this.io.sockets.in(this.room).emit('updateMessage', {msg: 'dostal som update'});
-      
-    });
-    
-  },*//*
-  update: function(msg){
-     this.io.sockets.in(this.room).emit('updateMessage', {msg: 'dostal som update'});    
-  },*/
   
   isInRoom: function(socketId){
     if(socketId in this.socketIdToRoom){
@@ -32,34 +19,31 @@ module.exports = {
     } 
     return false;
   },
+  
+  
   addPackages: function(msg, room){
-    if (msg.length<1)
+    if (msg.buffer.length<1)
       return;
+
+    var buffer = this.roomToBufferAndUid[room].buffer;    
     
-    var buffer = this.roomToBuffer[room];
     if (!buffer)
       return;
-    console.log(buffer);
-    for (var i = 0; i<msg.length;i++){
-      buffer.push(msg[i]);
-    }
-    console.log(buffer);
+    
+    buffer.push(msg);
   },
   
   updateRoom: function(room){
-    console.log("Updatujem "+room);
-
-    
-    var buffer = this.roomToBuffer[room];
+    var buffer = this.roomToBufferAndUid[room].buffer;
     
     if (!buffer)
       return;
     
-    if (buffer.lenght == 0){
+    if (buffer.length == 0){
       return;
     } else {
       sails.io.sockets.in(room).emit('updateMessage', {msg: buffer});
-      buffer = [];
+      this.roomToBufferAndUid[room].buffer = [];
     }
   },
  /* 
@@ -75,13 +59,12 @@ module.exports = {
     this.rooms.push(room);  
     this.socketIdToRoom[socketId] = room;    
     this.socketIdToSocket[socketId] = socket;
-    this.roomToBuffer[room] = [];
-    
-    
+    this.roomToBufferAndUid[room] = {uid:0, buffer:[]};
+     
     socket.join(room);
-    socket.emit("onCreate",{id: room, msg: "You have created room and joined it"});
+    socket.emit("onCreate",{rid: room, msg: "You have created room and joined it", uid: 0});
     var t = this;
-    var updateId = setInterval(function(){t.updateRoom(room);},2000);
+    var updateId = setInterval(function(){t.updateRoom(room);},this.UPDATE_RATE);
     this.roomToUpdateID[room] = updateId; 
   },
   
@@ -96,16 +79,15 @@ module.exports = {
         roomExists = true;
     }
     
-
     if (!roomExists)
       return false;
-  
     
     this.socketIdToRoom[socketId] = room;
     this.socketIdToSocket[socketId] = socket;
-    
+    this.roomToBufferAndUid[room].uid++;
+    console.log(this.roomToBufferAndUid[room].uid);
     socket.join(room);    
-    socket.emit("onJoin",{msg:"You have joined room",id: room});
+    socket.emit("onJoin",{msg:"You have joined room",rid: room, uid: this.roomToBufferAndUid[room].uid});
     socket.broadcast.to(room).emit('justMessage', {msg: 'User has joined room'});
   },
   
@@ -122,11 +104,10 @@ module.exports = {
     }
     // deleteRoom is called from afterDisconnect -> this socket already automaticaly left room
     // so we have to clean it
-
     this.leaveRoom(sockedId, room);        
     this.rooms.splice(this.rooms.indexOf(room),1);
     
-    delete this.roomToBuffer[room];
+    delete this.roomToBufferAndUid[room];
     delete this.roomToUpdateID[room];
 
 

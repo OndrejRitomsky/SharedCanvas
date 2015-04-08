@@ -1,5 +1,7 @@
 var sharedCanvas;
 var room = null;
+var UPDATE_RATE = 50;
+
 $(document).ready(function() {
   
   
@@ -69,11 +71,11 @@ $(document).ready(function() {
   });
   
   io.socket.on('onCreate', function notificationReceivedFromServer ( message ){    
-    room = message.id;
+    room = message.rid;
     var dialog = $( "#dialog" );
     dialog.prop('title', 'Invite Link:');
     
-    dialog.text("http://localhost:1337/canvas/draw/"+message.id); 
+    dialog.text("http://localhost:1337/canvas/draw/"+message.rid); 
     
     dialog.dialog({
       resizable: false,
@@ -93,8 +95,8 @@ $(document).ready(function() {
  
     io.socket.get("/csrfToken",function(e){
       setInterval(function(){
-        io.socket.post("/canvas/update", {id:room, msg: sharedCanvas.getChangesBuffer(), _csrf: e._csrf});
-      }, 2000);      
+        io.socket.post("/canvas/update", {rid:room, msg: {buffer:sharedCanvas.getChangesBuffer(),uid: message.uid}, _csrf: e._csrf});
+      }, UPDATE_RATE);      
     });
     
     sharedCanvas.saveToBuffer = true;
@@ -106,13 +108,13 @@ $(document).ready(function() {
   });
   
   io.socket.on('onJoin', function notificationReceivedFromServer ( message ){    
-    room = message.id;
+    room = message.rid;
     $( "#networkMessage" ).text(message.msg);  
       sharedCanvas.saveToBuffer = true;
       io.socket.get("/csrfToken",function(e){
         setInterval(function(){
-          io.socket.post("/canvas/update", {id:room, msg: sharedCanvas.getChangesBuffer(), _csrf: e._csrf});
-        }, 2000);       
+          io.socket.post("/canvas/update", {rid:room, msg: {buffer:sharedCanvas.getChangesBuffer(),uid: message.uid}, _csrf: e._csrf});
+        }, UPDATE_RATE);       
       });
   });
   
@@ -122,7 +124,7 @@ $(document).ready(function() {
   var k = 0;
   
   io.socket.on('updateMessage', function(message){
-    console.log("dostal som update");
+    //console.log("dostal som update");
     sharedCanvas.updateCanvas(message.msg);
   });
 

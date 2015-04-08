@@ -120,20 +120,15 @@ module.exports.sockets = {
   *                                                                          *
   ***************************************************************************/
   afterDisconnect: function(session, socket, cb) {
-    // By default: do nothing.
     
     console.log("---------------------------------");
-    console.log(socket.id);
     if (!socket.id){
       return cb();
     }
     
     Canvas.findOne().where({ userSocket: socket.id }).exec(function(err, canvas) {      
         if (err) return next(err);
-        
-      
-        var room = serverSharedCanvas.isInRoom(socket.id);
-        
+        var room = serverSharedCanvas.isInRoom(socket.id);        
         if(!canvas){          
           console.log("nebol autor");
           if(!room){  
@@ -145,56 +140,19 @@ module.exports.sockets = {
             return cb();            
           }  
         }
-        
-      
-      
         Canvas.destroy({userSocket: socket.id }, function(err, res){ 
           if(res){
             console.log("deleted");
-           
-            //console.log(sails.io.sockets.adapter.rooms[canvas.id]);           
-            //uz je leavnuty 
-            //socket.leave(canvas.id);
-            // este vsetkych vyhodi
-            serverSharedCanvas.deleteRoom(socket.id, canvas.id);
-
-        
-
-             /* if ("'"+canvas.id+"'" in sockets[s].rooms){
-                console.log("v mojej roomke je tento typek");
-
-              } else 
-                console.log("nie je v roomke")
-
-            }*/
-
-            //console.log();
-            console.log("---------------"); 
-            //console.log(sails.io.sockets);
-            /*sails.io.in(canvas.id).forEach(function(s){
-              console.log("kick");
-             
-            });*/
-     
-            
+            serverSharedCanvas.deleteRoom(socket.id, canvas.id);   
             return cb();
           } else {
             console.log("not deleted");
             return cb();
-          }
-        
+          }        
         });     
     });
   }, 
   
-  test: function(a,b){
-    console.log("???---???");
-    
-  }
-
-
-
-
   // More configuration options for Sails+Socket.io:
   // http://sailsjs.org/#/documentation/reference/sails.config/sails.config.sockets.html
 
