@@ -66,46 +66,65 @@ SharedCanvas.prototype.initialization = function(canvas, io){
 
 
 // uid vymazat
-SharedCanvas.prototype.updateCanvas = function(packages){
+SharedCanvas.prototype.updateCanvas = function(packages, uid){
+  //return;
   this.context.save();
 
-  if (this.lastActionMoveTo)
-    this.needReMoveTo=true;
+  //if (this.lastActionMoveTo)
+  //  this.needReMoveTo=true;
   // ---------- !!!!!!!!!!!!!!!!!!!!!!! ----------------
   //this.context.putImageData(this.oldCanvasState, 0 , 0);
 
   for(var p in packages){
     var package = packages[p].buffer;
-    var uid = packages[p].uid;
-
+    var puid = packages[p].uid;
     
+    
+    console.log(uid);
+    console.log(puid);
+    
+    
+    var pos = {x:-1,y:-1};
     var i = 0;
+    //console.log(package);
+    this.context.beginPath();
     while(i < package.length){
       if(package[i]=='MT'){
-        this.context.beginPath();
-        this.context.moveTo(package[i+1],package[i+2]);
-       
+        //this.context.beginPath();
+        //this.context.moveTo(package[i+1],package[i+2]);
+        pos.x = package[i+1];
+        pos.y = package[i+2];
         i += 3; 
         continue;
       } 
       if(package[i]=='LT'){
+        this.context.beginPath();
+        this.context.moveTo(pos.x, pos.y);
         this.context.lineTo(package[i+1],package[i+2]);
- 
-         this.context.stroke(); 
+        if (uid!=puid){
+          this.context.moveTo(pos.x, pos.y);
+          this.context.lineTo(package[i+1],package[i+2]);
+        }
+        this.context.stroke(); 
+        pos.x = package[i+1];
+        pos.y = package[i+2];
         i += 3;
         continue;
       } 
       if(package[i]=='S'){         
         // settings out of beginpath?
+    
         this.context.lineWidth = package[i+1];  
         this.context.strokeStyle = 'rgba('+package[i+2]+','+package[i+3]+','+package[i+4]+',1)';
+    
         //package[i+2]
         i += 5;        
         continue;
       } 
       i++; // ?
       
-    }    
+    } 
+    
   }  
    
   
@@ -139,17 +158,24 @@ SharedCanvas.prototype.getChangesBuffer = function(){
     return [];
   
   
-  /* if last action was MT, we ll splice it out and add it to next buffer.*/
-  if (lastMT){
-    var i = res.length-1;
-    var ind = -1;
-    while(i>=0){
-      if (res[i]=="MT"){
-        ind = i;
-        break;
+  if(this.mousedownID!=-1){
+    // we are drawing right now, we need to copy last position as new MT for next buffer
+      var i = res.length-1;
+      var ind = -1;
+      while(i>=0){
+        if (res[i]=="LT"){
+          ind = i;
+          break;
+        }
+        i--;
       }
-      i--;
-    }
+      this.addChangesToBuffer('MT', [res[ind+1],res[ind+2]]);
+    
+  }
+  
+  /* if last action was MT, we ll splice it out and add it to next buffer.*/
+  /*if (lastMT){
+
     
     if (ind>0){
       var lastMTAction = res.splice(ind,3); 
@@ -157,7 +183,7 @@ SharedCanvas.prototype.getChangesBuffer = function(){
      
     }
   }
-  lastMT = null;
+  lastMT = null;*/
 
 
   return res;
@@ -242,15 +268,15 @@ SharedCanvas.prototype.whilemousedown = function() {
     var pos = this.getMousePos(this.mouseEvt);
     
     if (!this.firedOnce){
-      this.context.beginPath();
+      //this.context.beginPath();
       this.moveTo(pos.x,pos.y);
-      this.counter = (this.counter + 1) % 2;
+      this.counter = (this.counter + 1);// % 2;
       this.firedOnce = true;  
-    
+      this.oldPos = pos;
       return;
     }
     
-    if (this.counter==0){
+   /* if (this.counter==0){
       this.context.beginPath();      
       if (this.oldPos!=null){
         this.moveTo(this.oldPos.x, this.oldPos.y);
@@ -258,21 +284,22 @@ SharedCanvas.prototype.whilemousedown = function() {
         this.moveTo(pos.x,pos.y);
       }
 
-    }
+    }*/
     
-    if (this.counter==1){
+    if (this.counter>0){
+      this.context.beginPath();      
+      this.context.moveTo(this.oldPos.x, this.oldPos.y);
       if(this.needReMoveTo){
         this.context.moveTo(this.reMoveToPos.x,this.reMoveToPos.y);
         this.needReMoveTo = false;
       }
-      
-      this.lineTo(pos.x, pos.y);
-      this.context.stroke();       
+      this.lineTo(pos.x, pos.y);   
+      this.context.stroke();
       this.oldPos=pos;
 
     }
     
-    this.counter = (this.counter + 1) % 2;
+    this.counter = (this.counter + 1);// % 2;
   }
 }
 

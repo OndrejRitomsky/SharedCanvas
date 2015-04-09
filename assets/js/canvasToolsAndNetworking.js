@@ -1,7 +1,7 @@
 var sharedCanvas;
 var room = null;
 var UPDATE_RATE = 50;
-
+var uid= null;
 $(document).ready(function() {
   
   
@@ -72,6 +72,7 @@ $(document).ready(function() {
   
   io.socket.on('onCreate', function notificationReceivedFromServer ( message ){    
     room = message.rid;
+     uid = message.uid;
     var dialog = $( "#dialog" );
     dialog.prop('title', 'Invite Link:');
     
@@ -109,6 +110,7 @@ $(document).ready(function() {
   
   io.socket.on('onJoin', function notificationReceivedFromServer ( message ){    
     room = message.rid;
+    uid = message.uid;
     $( "#networkMessage" ).text(message.msg);  
       sharedCanvas.saveToBuffer = true;
       io.socket.get("/csrfToken",function(e){
@@ -125,7 +127,7 @@ $(document).ready(function() {
   
   io.socket.on('updateMessage', function(message){
     //console.log("dostal som update");
-    sharedCanvas.updateCanvas(message.msg);
+    sharedCanvas.updateCanvas(message.msg,uid);
   });
 
   
