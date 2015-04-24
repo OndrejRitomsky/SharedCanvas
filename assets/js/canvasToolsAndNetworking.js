@@ -2,12 +2,15 @@ var sharedCanvas;
 var room = null;
 var UPDATE_RATE = 50;
 var uid= null;
+var canvas;
+
+
 $(document).ready(function() {
   
   
   
   // Setup CANVAS
-  var canvas = $("#canvas")[0];
+  canvas = $("#canvas")[0];
   if (!canvas)
     return;
   
@@ -73,51 +76,20 @@ $(document).ready(function() {
   io.socket.on('onCreate', function notificationReceivedFromServer ( message ){    
     room = message.rid;
      uid = message.uid;
-    var dialog = $( "#dialog" );
-    dialog.prop('title', 'Invite Link:');
-    
-    dialog.text("http://localhost:1337/canvas/draw/"+message.rid); 
-    
-    dialog.dialog({
-      resizable: false,
-      autoOpen: false,
-      height: 150,
-      width: 600,
-      modal: true
-    });
-    $( "#inviteActions" ).show();
-    
-    $( "#inviteLink" ).click(function(){
-       dialog.dialog("open");
-    });
-    $( "#networkMessage" ).text(message.msg);
-    
-    console.log("abc");
- 
-    io.socket.get("/csrfToken",function(e){
-      setInterval(function(){
-        io.socket.post("/canvas/update", {rid:room, msg: {buffer:sharedCanvas.getChangesBuffer(),uid: message.uid}, _csrf: e._csrf});
-      }, UPDATE_RATE);      
-    });
-    
-    sharedCanvas.saveToBuffer = true;
-
-    /*setInterval(function(){
-      io.socket.post("/canvas/update",{msg: "rozosielam tuto sprav"});
-    },1000);*/
-    
+   
+    prepareInviteDialog(room,message.msg);
+    updateRoom(room,uid);
+      
+    sharedCanvas.roomState= SharedCanvas.ROOM_ONLINE;
   });
   
   io.socket.on('onJoin', function notificationReceivedFromServer ( message ){    
     room = message.rid;
     uid = message.uid;
     $( "#networkMessage" ).text(message.msg);  
-      sharedCanvas.saveToBuffer = true;
-      io.socket.get("/csrfToken",function(e){
-        setInterval(function(){
-          io.socket.post("/canvas/update", {rid:room, msg: {buffer:sharedCanvas.getChangesBuffer(),uid: message.uid}, _csrf: e._csrf});
-        }, UPDATE_RATE);       
-      });
+    sharedCanvas.roomState= SharedCanvas.ROOM_ONLINE;
+    disableCanvas();    
+    updateRoom(room,uid);
   });
   
   io.socket.on('justMessage', function(message){
@@ -126,18 +98,82 @@ $(document).ready(function() {
   var k = 0;
   
   io.socket.on('updateMessage', function(message){
-    //console.log("dostal som update");
-    sharedCanvas.updateCanvas(message.msg,uid);
+    console.log("dostal som update");
+    if (message.type=="update"){
+      console.log("type update");
+      sharedCanvas.updateCanvas(message.msg,uid);
+      return;      
+    }
+    if (message.type=="disable"){
+      disableCanvas();
+      $( "#networkMessage" ).text(message.msg);
+      return;      
+    }
+    
+    if (message.type=="syncOthers"){
+      createSyncMessage();
+    }
+    if (message.type=="sync"){
+      sharedCanvas.syncWithURL(message.msg);   
+      console.log("sync");
+    }
+  
+    
   });
 
   
   
   // SUBSCRIBE TO CANVAS (JOIN/CREATE ROOM)
   io.socket.get("/canvas/subscribe");
-  
-
-  
 });
+function changeMessage(text){
+   $( "#networkMessage" ).text(text);  
+}
+
+var img;
+function createSyncMessage(){
+  var url = canvas.toDataURL();
+  console.log("create sync msg");
+  io.socket.get("/csrfToken",function(e){     
+    io.socket.post("/canvas/sync", {canvasurl:url, _csrf: e._csrf});
+  });
+  
+}
+
+function disableCanvas(){
+   sharedCanvas.onlineRoomState = SharedCanvas.ONLINE_ROOM_SYNCING;  
+}
+
+
+function updateRoom(rid, uid){
+  io.socket.get("/csrfToken",function(e){
+      setInterval(function(){
+        io.socket.post("/canvas/update", {rid:rid, msg: {buffer:sharedCanvas.getChangesBuffer(),uid: uid}, _csrf: e._csrf});
+      }, UPDATE_RATE);      
+  });
+}
+
+function prepareInviteDialog(rid,msg){
+  var dialog = $( "#dialog" );
+  dialog.prop('title', 'Invite Link:');
+    
+  dialog.text("http://localhost:1337/canvas/draw/"+rid); 
+
+  dialog.dialog({
+    resizable: false,
+    autoOpen: false,
+    height: 150,
+    width: 600,
+    modal: true
+  });
+  $( "#inviteActions" ).show();
+
+  $( "#inviteLink" ).click(function(){
+     dialog.dialog("open");
+  });
+  $( "#networkMessage" ).text(msg);
+  
+}
 
 function numbersOnly(val){
   for(var i = 0; i < val.length; i++){

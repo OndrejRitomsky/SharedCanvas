@@ -19,14 +19,24 @@ module.exports = {
     /* we need to check if host didnt close canvas so others dont try to add packages*/
    // console.log(req);
     //console.log(serverSharedCanvas.rooms);
+    if(!req.body.msg){
+      res.view("/");
+    }
     serverSharedCanvas.addPackages(req.body.msg, req.body.rid);
   },
       
+  'sync': function(req, res, next){
+    if(!req.body.canvasurl && !req.socket.id){
+      res.view("/");
+    }
+    serverSharedCanvas.syncRoom(req.socket.id, req.body.canvasurl); 
+  },
+  
   'subscribe': function(req, res, next){
       
     
       if (!req.session.correctConnect)
-        return
+        res.view("/");
     
       var author = req.session.author,
           canvasId = req.session.canvasId,
@@ -75,6 +85,12 @@ module.exports = {
         req.session.canvasId = null;
         
         serverSharedCanvas.joinRoom(req.socket, socketId, canvasId);
+        
+        Canvas.findOne().where({ id: canvasId }).exec(function(err, canvas) { 
+          console.log("autor je",canvas.userSocket);
+          serverSharedCanvas.tellAuthorToSync(canvas.userSocket);
+        });  
+        //
 
         
         next();
@@ -128,7 +144,6 @@ module.exports = {
           res.notFound();
           return;
         }
-     
         req.session.correctConnect = true;
         req.session.author = false;   
         req.session.canvasId = id;

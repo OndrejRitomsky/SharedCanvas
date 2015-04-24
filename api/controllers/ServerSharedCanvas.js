@@ -20,6 +20,16 @@ module.exports = {
     return false;
   },
   
+  tellAuthorToSync: function(author, room){
+    var sckt = this.socketIdToSocket[author];  
+    sckt.emit('updateMessage', {type:"syncOthers", msg: 'You have to sync others'});
+  },
+  
+  syncRoom: function(socketId,url){
+
+    var room = this.socketIdToRoom[socketId];
+    sails.io.sockets.in(room).emit('updateMessage', {msg: url, type:"sync"});
+  },
   
   addPackages: function(msg, room){
     if (msg.buffer.length<1)
@@ -42,7 +52,7 @@ module.exports = {
     if (buffer.length == 0){
       return;
     } else {
-      sails.io.sockets.in(room).emit('updateMessage', {msg: buffer});
+      sails.io.sockets.in(room).emit('updateMessage', {msg: buffer, type:"update"});
       this.roomToBufferAndUid[room].buffer = [];
     }
   },
@@ -87,8 +97,9 @@ module.exports = {
     this.roomToBufferAndUid[room].uid++;
     console.log(this.roomToBufferAndUid[room].uid);
     socket.join(room);    
-    socket.emit("onJoin",{msg:"You have joined room",rid: room, uid: this.roomToBufferAndUid[room].uid});
-    socket.broadcast.to(room).emit('justMessage', {msg: 'User has joined room'});
+    socket.emit("onJoin",{msg:"You have joined room - Syncing",rid: room, uid: this.roomToBufferAndUid[room].uid});
+    socket.broadcast.to(room).emit('updateMessage', {type:"disable", msg: 'User has joined room - Syncing'});
+   
   },
   
   deleteRoom: function(sockedId, room){

@@ -19,11 +19,16 @@ function SharedCanvas(){
   this.buffer = []; // [S,W,R,G,B,(A,X,Y)*, ...]
   this.settingsChanged = true;
   
-  this.saveToBuffer = false;
-  
-  this.oldCanvasState = null; // not setting state, but image! 
+  this.roomState = 1;
+  this.onlineRoomState = 0;
+
 }
 
+SharedCanvas.ONLINE_ROOM_RUNNING = 0;
+SharedCanvas.ONLINE_ROOM_SYNCING = 1;
+
+SharedCanvas.ROOM_LOCAL = 1;
+SharedCanvas.ROOM_ONLINE = 0;
 
 SharedCanvas.CURSOR_DRAWING_UPDATE_RATE = 5;
 
@@ -55,7 +60,6 @@ SharedCanvas.prototype.initialization = function(canvas, io){
   this.settingsChanged = true;
   
   // ---------- !!!!!!!!!!!!!!!!!!!!!!! ----------------
-  this.oldCanvasState = this.context.createImageData(SharedCanvas.CANVAS_WIDTH, SharedCanvas.CANVAS_HEIGHT);
 }
 
 
@@ -64,7 +68,6 @@ SharedCanvas.prototype.initialization = function(canvas, io){
 SharedCanvas.prototype.updateCanvas = function(packages, uid){
 
   this.context.save();
-
   for(var p in packages){
     var package = packages[p].buffer;
     var puid = packages[p].uid;
@@ -119,7 +122,25 @@ SharedCanvas.prototype.updateCanvas = function(packages, uid){
 var sendId = 0;
 var getId = 0;
 
+SharedCanvas.prototype.syncWithURL = function(url){
+    
+  console.log("TO");
+  img = new Image;
+  var t = this;
+  img.onload = function(){
+    //ctx.drawImage(img,0,0); // Or at whatever offset you like
+    t.context.save();
+    t.context.strokeStyle = 'rgba(0,0,0,1)';
+    t.context.clearRect(0,0,800,600);
+    t.context.drawImage(img,0,0);
+    t.context.restore();
+    t.onlineRoomState = SharedCanvas.ONLINE_ROOM_RUNNING;
+    changeMessage("Synced");
+  };
+  img.src = url;
+    
 
+}
 SharedCanvas.prototype.changeCursorWidth = function(value){
   this.settingsChanged = true;
   this.cursorWidth = value;
@@ -128,11 +149,12 @@ SharedCanvas.prototype.changeCursorWidth = function(value){
 SharedCanvas.prototype.getChangesBuffer = function(){
   var res = this.buffer;
   this.buffer = [];
-  
-  if(this.saveToBuffer){
-    var params = [this.cursorWidth, this.colorRed, this.colorGreen, this.colorBlue];
-    this.addChangesToBuffer('S', params); 
+  if(this.roomState!= SharedCanvas.ROOM_ONLINE){
+    return [];  
   }
+
+  var params = [this.cursorWidth, this.colorRed, this.colorGreen, this.colorBlue];
+  this.addChangesToBuffer('S', params); 
   this.settingsChanged = false;
   
   if (res.length<=5)
@@ -154,7 +176,6 @@ SharedCanvas.prototype.getChangesBuffer = function(){
       this.addChangesToBuffer('MT', [res[ind+1],res[ind+2]]);
     
   }
-
 
   return res;
 }
@@ -203,7 +224,7 @@ SharedCanvas.prototype.getMousePos = function(evt) {
 }
 
 SharedCanvas.prototype.lineTo = function(x, y){
-  if(this.saveToBuffer){
+  if(this.roomState== SharedCanvas.ROOM_ONLINE){
     this.addChangesToBuffer('LT', [x, y]); 
   }
   this.context.lineTo(x, y);   
@@ -212,13 +233,15 @@ SharedCanvas.prototype.lineTo = function(x, y){
 
 //We are drawing, draw line and save position
 SharedCanvas.prototype.whilemousedown = function() {
+  if(this.onlineRoomState!=SharedCanvas.ONLINE_ROOM_RUNNING)
+    return;
 
   if (this.mouseEvt!=null){
   
     var pos = this.getMousePos(this.mouseEvt);
     this.mouseEvt = null;
     if (!this.firedOnce){
-      if(this.saveToBuffer){
+      if(this.roomState== SharedCanvas.ROOM_ONLINE){
         this.addChangesToBuffer('MT', [pos.x, pos.y]); 
       } 
       this.counter = (this.counter + 1);// % 2;
@@ -242,6 +265,8 @@ SharedCanvas.prototype.whilemousedown = function() {
 
 // We started drawing, set settings and save them to buffer if needed
 SharedCanvas.prototype.onMouseDown = function(event) {
+  if(this.onlineRoomState!=SharedCanvas.ONLINE_ROOM_RUNNING)
+    return;
   
   if(this.mousedownID==-1){
     
@@ -249,7 +274,7 @@ SharedCanvas.prototype.onMouseDown = function(event) {
      this.context.lineWidth = this.cursorWidth;  
      this.context.strokeStyle = 'rgba('+this.colorRed+','+this.colorGreen+','+this.colorBlue+',1)';
     
-     if(this.settingsChanged && this.saveToBuffer){
+     if(this.settingsChanged && this.roomState== SharedCanvas.ROOM_ONLINE){
        var params = [this.cursorWidth, this.colorRed, this.colorGreen, this.colorBlue];
        this.addChangesToBuffer('S', params);   
        this.settingsChanged = false;
@@ -262,6 +287,8 @@ SharedCanvas.prototype.onMouseDown = function(event) {
 
 // WE stopped drawing, make sure whilemousedown fired at least once so dot is drawn.
 SharedCanvas.prototype.onMouseUp = function(event) {
+  if(this.onlineRoomState!=SharedCanvas.ONLINE_ROOM_RUNNING)
+    return;
   if(this.mousedownID!=-1) {  //Only stop if exists
      clearInterval(this.mousedownID);
      this.mousedownID=-1;
