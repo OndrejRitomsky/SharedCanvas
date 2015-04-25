@@ -157,7 +157,7 @@ function prepareInviteDialog(rid,msg){
   var dialog = $( "#dialog" );
   dialog.prop('title', 'Invite Link:');
     
-  dialog.text("http://http://protected-hollows-6072.herokuapp.com/canvas/draw/"+rid); 
+  dialog.text("http://protected-hollows-6072.herokuapp.com/canvas/draw/"+rid); 
 
   dialog.dialog({
     resizable: false,
