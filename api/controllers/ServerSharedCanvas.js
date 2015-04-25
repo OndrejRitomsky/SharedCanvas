@@ -1,8 +1,9 @@
-//var sails = require('sails');
 
 /*
  *socketId indentifies user, we are not using word "user", bcs even annonymouse user can work with canvas!
  */
+
+/* TENTO SUBOR BY MAL BYT V API/SERVICES!!!*/
 module.exports = {
   rooms : [],
   socketIdToRoom: {},  /* We could map socketId in room/canvas in database, currently we map only creatorsocketit to canvas */
