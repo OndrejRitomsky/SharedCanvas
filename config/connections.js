@@ -58,14 +58,15 @@ module.exports.connections = {
   ***************************************************************************/
 
   
-   mongodb: {
+  mongodb: {
     adapter: 'sails-mongo',
     url: process.env.DB_URL
-  }
+  },,
  /***************************************************************************
   *                                                                          *
   * PostgreSQL is another officially supported relational database.          *
   * http://en.wikipedia.org/wiki/PostgreSQL                                  *
+  
   *                                                                          *
   * Run: npm install sails-postgresql                                        *
   *                                                                          *
@@ -80,7 +81,7 @@ module.exports.connections = {
   }
 
 
-  /***************************************************************************
+/***************************************************************************
   *                                                                          *
   * More adapters: https://github.com/balderdashy/sails                      *
   *                                                                          *
