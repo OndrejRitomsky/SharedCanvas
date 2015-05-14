@@ -191,6 +191,10 @@ SharedCanvas.prototype.addChangesToBuffer = function(action, params){
 }
 
 SharedCanvas.prototype.changeColor = function(color, value){
+  
+  if(value=="")
+    return "";
+
   if (value < SharedCanvas.COLOR_MIN_VAL)
     return SharedCanvas.COLOR_MIN_VAL;
   if (value > SharedCanvas.COLOR_MAX_VAL)

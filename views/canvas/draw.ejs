@@ -1,14 +1,13 @@
 <nav id="canvasNav" class="navbar navbar-inverse">
-  
   <ul id="actions" class="nav navbar-nav">
-    <li><a href="" class="btn">
-        <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+    <li><a href="/" class="btn" title="Home">
+        <span class="glyphicon glyphicon-home" aria-hidden="true"></span>
     </a></li>
-    <li><a href="" class="btn">
-        <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
+    <li><a href="" class="btn" title="Save on server">
+        <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
     </a></li>
-    <li><a href="" class="btn">
-        <span class="glyphicon glyphicon-off" aria-hidden="true"></span>
+    <li><a class="btn" title="Save to desktop" data-toggle="modal" data-target="#downloadModal">
+        <span class="glyphicon glyphicon-floppy-save" aria-hidden="true" ></span>
     </a></li>
     <li>
     <p class="navbar-text" id="networkMessage">Idle</p>
@@ -16,20 +15,59 @@
   </ul>
   
   <ul id="inviteActions" class="nav navbar-nav pull-right" hidden>    
-    <li><button class="btn" id="inviteLink">Invite with link</li> 
-    <li><button class="btn" id="inviteLogged">Invite Logged User</li>     
+   <li><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#linkInviteModal">
+      Invite with link
+    </button>
+   </li>   
   </ul>
 </nav>
 
 <main>
+<!-- Modal -->
+<div class="modal fade" id="linkInviteModal" tabindex="-1" role="dialog" aria-labelledby="linkInviteModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="linkInviteModalLabel">Invite friend via link</h4>
+      </div>
+      <div class="modal-body" id="linkInviteModalBody">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>  
+  
+<div class="modal fade" id="downloadModal" tabindex="-1" role="dialog" aria-labelledby="downloadModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="downloadModalLabel">Invite friend via link</h4>
+      </div>
+      <div class="modal-body" id="downloadModalBody">
+        File name: <input type="text" id="fileName" value="image"></input>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <a type="button" id="downloadLink" class="btn btn-primary" download="">Download</a>
+      </div>
+    </div>
+  </div>
+</div>  
+  
+  
+  
+  
 <div class="container-fluid">
   <div class="row">
     <div id="canvasLeftColumn" class="col-md-1">
       <div class="canvasTools">
         <div class="canvasCursorType">
           <h4>Drawing tools</h4>
-          <input type="button" class="btn" id="canvasPen" value="P" /> 
-          <input type="button" class="btn" id="canvasRubber" value="R" />
+          <input type="button" class="btn" id="canvasPen" value="P" /> </br>
           Size: <input id="canvasCursorWidth" type="range" min="1" max="5" step="1"/> 
 
         </div>
@@ -52,7 +90,9 @@
     </div>
 
   </div>
-  <div id="dialog"></div>
+
+  
+  
 </div>
 
 </main>

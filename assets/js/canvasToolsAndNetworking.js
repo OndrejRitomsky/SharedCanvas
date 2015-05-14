@@ -7,8 +7,6 @@ var canvas;
 
 $(document).ready(function() {
   
-  
-  
   // Setup CANVAS
   canvas = $("#canvas")[0];
   if (!canvas)
@@ -40,15 +38,24 @@ $(document).ready(function() {
   $('#canvasRed').bind('input', function(){
     checkInput(this, SharedCanvas.COLOR_RED);
     showInputColor(sharedCanvas.colorRed,sharedCanvas.colorGreen,sharedCanvas.colorBlue);
-  });
+  }).focus(function(){
+    this.value = "";
+  }); 
+  
   $('#canvasGreen').bind('input', function(){
     checkInput(this, SharedCanvas.COLOR_GREEN);
     showInputColor(sharedCanvas.colorRed,sharedCanvas.colorGreen,sharedCanvas.colorBlue);
+  }).focus(function(){
+    this.value = "";
   }); 
+  
   $('#canvasBlue').bind('input', function(){
     checkInput(this, SharedCanvas.COLOR_BLUE);
     showInputColor(sharedCanvas.colorRed,sharedCanvas.colorGreen,sharedCanvas.colorBlue);
-  });
+  }).focus(function(){
+    this.value = "";
+  }); 
+  
   $('#canvasCursorWidth').bind('input', function() {
     sharedCanvas.changeCursorWidth($('#canvasCursorWidth').val());
   });
@@ -69,6 +76,9 @@ $(document).ready(function() {
   });
   
   // Add IO Listeners
+ /* $('#linkInviteModal').on('shown.bs.modal', function () {
+    $('#myInput').focus();
+  })*/
   io.socket.on('message', function notificationReceivedFromServer ( message ) {
     console.log(message);
   });
@@ -98,9 +108,9 @@ $(document).ready(function() {
   var k = 0;
   
   io.socket.on('updateMessage', function(message){
-    console.log("dostal som update");
+    //console.log("dostal som update");
     if (message.type=="update"){
-      console.log("type update");
+      //console.log("type update");
       sharedCanvas.updateCanvas(message.msg,uid);
       return;      
     }
@@ -115,17 +125,36 @@ $(document).ready(function() {
     }
     if (message.type=="sync"){
       sharedCanvas.syncWithURL(message.msg);   
-      console.log("sync");
+      //console.log("sync");
     }
   
     
   });
-
   
+  
+  
+  // ADD other listeners
+  var dlLink = $("#downloadLink");
+  dlLink.bind('click', download);
   
   // SUBSCRIBE TO CANVAS (JOIN/CREATE ROOM)
   io.socket.get("/canvas/subscribe");
+  
+
+
 });
+function download(){
+  var fileName = $("#fileName").val(); 
+  var dt = canvas.toDataURL();  
+  if (!fileName)
+    this.download = "image";
+  else 
+    this.download = fileName;
+  this.href = dt;
+  $('#downloadModal').modal('hide');
+}
+
+
 function changeMessage(text){
    $( "#networkMessage" ).text(text);  
 }
@@ -154,23 +183,9 @@ function updateRoom(rid, uid){
 }
 
 function prepareInviteDialog(rid,msg){
-  var dialog = $( "#dialog" );
-  dialog.prop('title', 'Invite Link:');
-    
+  var dialog = $( "#linkInviteModalBody" );    
   dialog.text("http://localhost:1337/canvas/draw/"+rid); 
-
-  dialog.dialog({
-    resizable: false,
-    autoOpen: false,
-    height: 150,
-    width: 600,
-    modal: true
-  });
   $( "#inviteActions" ).show();
-
-  $( "#inviteLink" ).click(function(){
-     dialog.dialog("open");
-  });
   $( "#networkMessage" ).text(msg);
   
 }
@@ -186,15 +201,26 @@ function numbersOnly(val){
 
 function checkInput(obj, color){
   var val = $(obj).val();
+  if(val[0]=="0" && val.length>1){
+    val = val.slice(1,val.length);    
+  }
+  
   if (!numbersOnly(val)){
     val = val.slice(0,val.length-1);
+  } 
+  var res = 0;
+  if (!val){
+    res = sharedCanvas.changeColor(color, "0"); 
+  } else {
+    res = sharedCanvas.changeColor(color, val);
+    $(obj).val(res);
   }
-  var res = sharedCanvas.changeColor(color, val); 
-  $(obj).val(res);  
+
+    
 }
 function showInputColor(r,g,b){
   var color = "RGB("+r+","+g+","+b+")";
-  $("#canvasResultColor").css("background-color",color)
+  $("#canvasResultColor").css("background-color",color);
 }
 
 
