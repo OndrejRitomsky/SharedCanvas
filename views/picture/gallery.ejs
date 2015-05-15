@@ -1,0 +1,71 @@
+<!-- The Bootstrap Image Gallery lightbox, should be a child element of the document body -->
+<div id="blueimp-gallery" class="blueimp-gallery">
+    <!-- The container for the modal slides -->
+    <div class="slides"></div>
+    <!-- Controls for the borderless lightbox -->
+    <h3 class="title" id="myTitle"></h3>
+    <a class="prev">‹</a>
+    <a class="next">›</a>
+    <a class="close">×</a>
+    <a class="play-pause"></a>
+    <ol class="indicator"></ol>
+    <!-- The modal dialog, which will be used to wrap the lightbox content -->
+    <div class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title"></h4>
+                </div>
+                <div class="modal-body next"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default pull-left prev">
+                        <i class="glyphicon glyphicon-chevron-left"></i>
+                        Previous
+                    </button>
+                    Likes: <span id="mylikes"></span>
+                    <button class="btn btn-success">Like</button>                 
+                    
+                    <button type="button" class="btn btn-primary next">
+                        Next
+                        <i class="glyphicon glyphicon-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+  <ul>
+    <div id="links">
+
+
+
+
+      <%
+      var jspictures = [];
+      for (var i in pictures){ 
+        var alt = pictures[i].author+":"+pictures[i].name;
+        var link = "http://localhost:1337/"+pictures[i].path %>
+      
+        <a href=<%= link %> title=<%= alt %> data-gallery>
+          <img src=<%= link %> width="200" heigt="160" alt=<%= alt %>>
+       </a>
+
+      <% 
+        jspictures.push({author:pictures[i].author, 
+                         name:pictures[i].name,
+                         likes:8                        
+                        }); 
+      } %>  
+
+      <script>         
+
+       pics = <%- JSON.stringify(jspictures)%>;
+      </script>
+    </div>
+
+  </ul>
+</div>
+

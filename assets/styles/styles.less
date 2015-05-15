@@ -10,6 +10,35 @@
 @linksHover: #286090;
 
 
+
+input[type=text], input[type=password] {
+  color: black;
+}
+
+.myPicture{
+  padding-bottom: 10px;
+  color: white;
+ 
+  .myCenter{
+    text-align: center;
+  }
+}
+
+.myRight form{
+  color: white;
+  padding-bottom: 50px;
+}
+
+.myRight form button{
+  margin-top: 10px
+}
+
+.col-md-9{
+  border-right: 2px solid white;
+}
+
+
+
 body {
   padding-top: 60px;
   padding-bottom: 40px;
@@ -32,9 +61,13 @@ body {
     margin-top: -2px;
     color: @text2;
   }
+  
+  >a {
+    color: @links !important;
+  }
 }
 .jumbotron {
-  background-color: white;
+  background-color: grey;
 }
 #loginForm {
   margin-left: auto;
@@ -73,7 +106,7 @@ body {
     color: @linksHover !important; 
   }  
 }
-#quickLogout > li {
+#quickLogout > li{
   >a {
     color: @links;
   }
@@ -96,10 +129,12 @@ body {
 
 aside {
   color: white;
-  padding-top: 20px;
-  border-left: 2px solid white;
-  figcaption, figure{
+  figure{
+    padding-top: 20px;
     text-align: center;     
+  }
+  figcation{
+    text-align: center; 
   }
 }
 h1{

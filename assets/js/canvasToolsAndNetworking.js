@@ -131,11 +131,25 @@ $(document).ready(function() {
     
   });
   
+  // ADD nav menu listeners
+  $("#downloadLink").bind('click', download);  
   
-  
-  // ADD other listeners
-  var dlLink = $("#downloadLink");
-  dlLink.bind('click', download);
+  $("#saveLink").click(function(){
+    $.ajax({type:"GET", url:"/csrfToken"}).done(function(e){
+      var dt = canvas.toDataURL();  
+      var fileName = $("#saveFileName").val();
+      
+      $.post("/picture/save", {name:fileName, data:dt, _csrf: e._csrf}, function(ans){
+        changeMessage(ans.text);     
+      });
+      $('#saveModal').modal('hide');  
+      
+      
+    });    
+
+  }); 
+    
+
   
   // SUBSCRIBE TO CANVAS (JOIN/CREATE ROOM)
   io.socket.get("/canvas/subscribe");

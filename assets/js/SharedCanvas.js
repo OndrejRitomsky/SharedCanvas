@@ -52,6 +52,10 @@ SharedCanvas.prototype.initialization = function(canvas, io){
     
   this.canvas = canvas;
   this.context = this.canvas.getContext("2d");
+  console.log("abc");
+  this.context.fillStyle = "RGBA(255,255,255,1)";
+  this.context.fillRect(0,0,SharedCanvas.CANVAS_WIDTH, SharedCanvas.CANVAS_HEIGHT);
+  
   
   this.context.lineCap= "round";
   this.context.lineJoin= "mitter"; 

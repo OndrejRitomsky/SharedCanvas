@@ -25,8 +25,28 @@ module.exports = {
       }
       
       res.redirect('/');
-    });
+    }); 
+  },
+  
+  'view': function(req, res, next){
+     var author = "test";
+     Picture.find().where({author: author}).exec(function(err, pictures){
+      if (err) {
+        req.session.flash = {
+          err: err
+        }
+        return res.redirect('/');
+      }
+       
+      res.view({pictures:pictures});
+    }); 
+    
+    
     
   }
+  
+  
+  
+  
 };
 

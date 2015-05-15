@@ -15,7 +15,9 @@
 // (if you're using LESS with the built-in default config, you'll want
 //  to change `assets/styles/importer.less` instead.)
 var cssFilesToInject = [
-  'styles/**/*.css'
+'css/blueimp-gallery.min.css',
+'css/bootstrap-image-gallery.min.css',  
+'styles/**/*.css'
 ];
 
 
@@ -30,10 +32,15 @@ var jsFilesToInject = [
   'js/dependencies/jquery.js',
   'js/dependencies/**/*.js',
   
+  'js/bootstrap.js',
+  'js/jquery.blueimp-gallery.min.js',
+  'js/bootstrap-image-gallery.min.js',
+
+  
 
   // All of the rest of your client-side js files
   // will be injected here in no particular order.
-  'js/bootstrap.js',
+  
   'js/**/*.js'
 ];
 

@@ -1,0 +1,58 @@
+<main>
+  <div class="container">
+    
+    <div class="row">
+      <div class="col-md-9">
+       
+        <div class="col-md-6">
+        <h3>Your pictures <%= pictures.length %>/3 </h3>
+        <% for (var i in pictures){ 
+            var link = "http://localhost:1337/"+pictures[i].path;
+        %>
+            <div class="row myPicture">
+              <div class="col-md-6">
+              <img src=<%= link %> width="200" height="160"></img>
+                </div>
+              <div class="col-md-6 myCenter">
+                <b>Name:</b> <%= pictures[i].name %> </br>
+                <b>In gallery:</b> No </br>
+                <b>Likes:</b> 0 </br>
+                <b>Reports:</b> 0 </br>
+              </div>
+            
+              
+            </div>
+               
+        <% } %>
+        </div>   
+        <div class="col-md-6 myRight">
+            <h3>Actions</h3>
+            <form method="post" action="/picture/mydelete">
+              File name:  <input type="text" name="fileName"></input> <br>
+              Are you sure?:  <input type="checkbox" name="isSure"></input> <br>
+              <input type="hidden" name="_csrf" value="<%= _csrf %>"/>
+              <button type="submit" class="btn btn-danger myDelete">Delete</button> <br>
+
+            </form>
+
+            <form method="post" action="/picture/galleryToogle">
+              File name:  <input type="text" name="fileName"></input> <br>
+              <input type="hidden" name="_csrf" value="<%= _csrf %>"/>
+              <button type="submit" class="btn btn-primary">Gallery toogle</button><br>
+            </form>
+
+        
+        </div> 
+      </div>
+      
+      <aside class="col-md-3  ">
+         <h3>Invites?</h3>
+          
+
+      </aside>
+    </div>
+
+
+  </div>    
+</main>
+
