@@ -32,6 +32,15 @@ module.exports = {
       type: 'boolean',
       defaultsTo: false
     },
+    likes:{
+        collection: 'like',
+        via: 'from_user'
+    },
+    
+    pictures:{
+        collection: 'picture',
+        via: 'author'
+    },
     
     toJSON: function(){
       var obj = this.toObject();
@@ -42,6 +51,10 @@ module.exports = {
       delete obj._csrf;
       return obj;
     }
+    
+   
+    
+    
   },
     
   beforeCreate: function(values, next){

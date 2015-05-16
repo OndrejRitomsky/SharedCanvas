@@ -34,14 +34,24 @@ module.exports.routes = {
 
   '/': {
     view: 'static/index'
+    
+  },
+
+  // currently blueprints.js actions == true !!! -> autorutes
+  '/user/view': {
+    controller: 'UserController',
+    action: 'view'
   },
   
+  '/session/create': {
+    controller: 'SessionController',
+    action: 'create'
+  },
   
-  // currently blueprints.js actions == true !!! -> autorutes
-  /*'/user/registration': {
-    controller: 'UserController',
-    action: 'registration'
-  }*/ 
+  '/session/destroy': {
+    controller: 'SessionController',
+    action: 'destroy'
+  } 
 
   /***************************************************************************
   *                                                                          *

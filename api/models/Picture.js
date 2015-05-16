@@ -10,8 +10,7 @@ module.exports = {
   
   attributes: {  
     author: {
-      type: 'string',
-      required: true
+      model:'user'
     }, 
     name: {
       type: 'string',
@@ -22,6 +21,16 @@ module.exports = {
     path:{
       type: 'string',
       required: true
+    },
+    
+    likes:{
+        collection: 'like',
+        via: 'picture'
+    },
+    
+    inGallery:{
+      type: 'boolean',
+      defaultsTo: false
     }
     
   

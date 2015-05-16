@@ -23,9 +23,10 @@
                         <i class="glyphicon glyphicon-chevron-left"></i>
                         Previous
                     </button>
-                    Likes: <span id="mylikes"></span>
-                    <button class="btn btn-success">Like</button>                 
-                    
+                    Likes: <span class="mylikes"></span>
+                    <% if (session.authenthicated){%>
+                    <button class="btn btn-success likeIt">Like!</button>                 
+                    <% }%>
                     <button type="button" class="btn btn-primary next">
                         Next
                         <i class="glyphicon glyphicon-chevron-right"></i>
@@ -36,34 +37,24 @@
     </div>
 </div>
 
+
 <div class="container">
   <ul>
     <div id="links">
-
-
-
-
+      
       <%
-      var jspictures = [];
       for (var i in pictures){ 
         var alt = pictures[i].author+":"+pictures[i].name;
-        var link = "http://localhost:1337/"+pictures[i].path %>
-      
-        <a href=<%= link %> title=<%= alt %> data-gallery>
+        var link = "http://localhost:1337/"+pictures[i].path;
+        %>
+       
+        <a href=<%= link %> title=<%= alt %> data-gallery data-author=<%=pictures[i].author%> data-name=<%=pictures[i].name%> data-likes=<%=                  pictures[i].likes%> data-liked=<%= pictures[i].liked %>>
           <img src=<%= link %> width="200" heigt="160" alt=<%= alt %>>
-       </a>
+        </a>
+    
 
-      <% 
-        jspictures.push({author:pictures[i].author, 
-                         name:pictures[i].name,
-                         likes:8                        
-                        }); 
-      } %>  
+      <%  } %>  
 
-      <script>         
-
-       pics = <%- JSON.stringify(jspictures)%>;
-      </script>
     </div>
 
   </ul>

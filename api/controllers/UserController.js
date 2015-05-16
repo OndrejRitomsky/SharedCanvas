@@ -23,30 +23,40 @@ module.exports = {
         
         return res.redirect('/user/registration');
       }
+      req.session.authenthicated = true;
+      req.session.User = user;
       
       res.redirect('/');
     }); 
   },
   
   'view': function(req, res, next){
-     var author = "test";
-     Picture.find().where({author: author}).exec(function(err, pictures){
+    var author = req.session.User.id;
+
+    Picture.find().where({author: author}).populate('likes').exec(function(err, pictures){
       if (err) {
         req.session.flash = {
           err: err
         }
         return res.redirect('/');
       }
-       
-      res.view({pictures:pictures});
-    }); 
-    
-    
-    
-  }
-  
-  
-  
+      var result = [];
+      for (var i in pictures){
+        var obj = {};
+        obj.name = pictures[i].name;
+        obj.author = pictures[i].author;
+        obj.path = pictures[i].path;
+        obj.likes = pictures[i].likes.length;
+        if (pictures[i].inGallery)
+          obj.inGallery = "Yes";
+        else 
+          obj.inGallery = "No";
+        result.push(obj);
+      }
+      
+      res.view({pictures:result});
+    });
+  } 
   
 };
 

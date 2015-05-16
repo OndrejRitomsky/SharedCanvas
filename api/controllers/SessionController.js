@@ -13,9 +13,8 @@ module.exports = {
   },
   
   'destroy': function(req, res, next){
-     req.session.authenthicated = false;
-     req.session.User = {};
-     res.redirect('/');    
+     req.session.destroy();
+     res.redirect('/');
   },
   
   'create': function(req, res, next){

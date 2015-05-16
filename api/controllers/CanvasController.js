@@ -8,8 +8,22 @@ var serverSharedCanvas = require('./ServerSharedCanvas.js');
                          
 
 module.exports = {
-  'new': function(req, res){
-    res.view('canvas/start');    
+  'start': function(req, res){
+        req.session.authenthicated 
+    if (req.session.authenthicated){
+      console.log("abc");
+      Picture.find().where({author:req.session.User.id}).exec(function(err, pictures){
+         console.log("efg");
+        if (err){
+          res.serverError(); 
+        } else {
+           console.log("hki");
+          res.view({pictures:pictures});
+        }
+      });
+    } else {      
+      res.view();
+    }        
   },
 
   // no route, just get, check perm   //req.session.User = {};
@@ -98,7 +112,7 @@ module.exports = {
     
 
   },
-  
+
   'draw': function(req, res, next){
 
     var id = req.params.id;
@@ -108,6 +122,8 @@ module.exports = {
     /*if(!req.session.User){
       res.view('static/index');
     }*/
+    console.log(req.params.all());
+    
 
     if(!id){
       console.log("nemam id");
@@ -119,11 +135,30 @@ module.exports = {
         console.log("Uz je", num, " canvasov");
         
         if (num<2){
-          req.session.correctConnect = true;
-          req.session.author = true;
-          
-          res.locals.layout = 'canvasLayout';
-          res.view('canvas/draw');  
+          var pic = req.params.all().picture;
+          if(pic){
+            Picture.findOne().where({author: req.session.User.id, name: pic}).exec(function(err, picture){
+              if (err){
+                res.redirect("/canvas/start");                
+              } else {
+                console.log(picture);
+                
+                req.session.correctConnect = true;
+                req.session.author = true;
+
+                res.locals.layout = 'canvasLayout';
+                res.view({path:picture.path}); 
+              }
+              
+            });
+          } else {
+
+            req.session.correctConnect = true;
+            req.session.author = true;
+
+            res.locals.layout = 'canvasLayout';
+            res.view({path:null}); 
+          }
         } else {
           res.redirect("/");
           return;
@@ -149,18 +184,18 @@ module.exports = {
         req.session.canvasId = id;
         
         res.locals.layout = 'canvasLayout';
-        res.view('canvas/draw');
+        res.view({path:null});
         return;     
       });
   
     }
 
       
-  },
-  
- 
-  
+  },  
 };
+
+
+
 /*
     Canvas.findOne().where({ id: id }).exec(function(err, canvas) {
       

@@ -23,6 +23,17 @@ $(document).ready(function() {
     return;
   
   sharedCanvas.initialization(canvas);
+  if (syncPath){
+    console.log(syncPath);
+    var myImage = new Image(800, 640);
+    console.log(myImage);
+    myImage.onload = function(){
+      console.log("yuh");
+      canvas.getContext("2d").drawImage(myImage,0,0); // Or at whatever offset you like
+    };
+    myImage.src = "http://localhost:1337/"+syncPath;
+  }
+  
   
   /*Reset Inputs*/
   

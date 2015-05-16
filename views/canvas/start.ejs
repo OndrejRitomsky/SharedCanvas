@@ -2,24 +2,30 @@
   <div class="container">
     
     <div class="row">
-      <div class="col-md-9">
+      <div class="col-md-12">
         <h1>Start Drawing!</h1>
         <div class="startButtons">
-          <a href="/canvas/draw" class="btn btn-primary canvasStartButton" id="newCanvas">New Canvas</a>
-          <a href="" class="btn btn-primary canvasStartButton" id="todo">Mockup </a>
+          <a href="/canvas/draw" class="btn btn-primary canvasStartButton" id="newCanvas">New Canvas</a> <br>
+          
+          <% if (session.authenthicated && pictures.length > 0){  %>
+             <h2>Continue with</h2>
+          <%   for(var i = 0; i < pictures.length; i++){ 
+                 var link = "/canvas/draw/?picture="+pictures[i].name;
+                 var name = pictures[i].name %>
+                 <a href=<%=link %> class="btn btn-primary canvasStartButton"><%=name%></a>
+            <% }
+            } %>
+          
+          
+          
         </div>
         
       </div>
-      
-      <aside class="col-md-3">
-        <figure> 
-          <img src="http://placehold.it/350x150" alt="placeholder" class="img-thumbnail">
-          <figcaption>Random image</figcaption>  
-          
-        </figure>
-
-      </aside>
     </div>
+    
+   
+
+    
 
 
   </div>    
