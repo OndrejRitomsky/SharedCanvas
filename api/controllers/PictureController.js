@@ -144,19 +144,19 @@ module.exports = {
   
   'like': function(req, res, next){
     Picture.findOne().where({name:req.body.name, author:req.body.author}).exec(function(err, picture){
-      if (!err){
+      if (!err && picture){
         var params = {};
         params.picture = picture.id;
         params.from_user = req.session.User.id;  // session
         Like.create(params, function(err, like){
           if (err)
-            return res.serverError();
+            return res.redirect("picture/gallery");
           
           return res.send({msg:"created"});
         });
         
       } else {
-        return res.serverError();
+        return res.redirect("picture/gallery");
       } 
       
     });

@@ -45,8 +45,19 @@
         </div> 
       </div>
       
-      <aside class="col-md-3  ">
-         <h3>Invites?</h3>
+      <aside class="col-md-3">
+         <h3>Invites</h3>
+         <% for (var i in invites){ 
+            var link = "/canvas/decline/"+invites[i].id;
+          %>
+            From: <%= invites[i].from_user.nickname %> <br>
+            <div id="canvasInvites">
+              
+            <a href=<%= invites[i].path %> class="btn btn-success">Accept</a>
+            <a href=<%= link %> class="btn btn-warning">Decline</a>
+            </div>
+            <% } %>
+        
           
 
       </aside>

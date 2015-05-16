@@ -54,7 +54,14 @@ module.exports = {
         result.push(obj);
       }
       
-      res.view({pictures:result});
+      Invite.find().where({to_user: author}).populate('from_user').exec(function(err,invites){
+        if (err)
+            res.view({pictures:result, invites: ""});
+        
+        res.view({pictures:result, invites: invites});
+      });
+      
+    
     });
   } 
   

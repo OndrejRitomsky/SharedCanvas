@@ -46,6 +46,17 @@ module.exports = {
     serverSharedCanvas.syncRoom(req.socket.id, req.body.canvasurl); 
   },
   
+  
+  'decline': function(req, res, next){
+    console.log(req.body);
+    console.log(req.params.all());
+    Invite.destroy({id:req.params.all().id}).exec(function(err,invite){
+      console.log(invite);
+      res.redirect('user/view');
+    });
+    
+  },
+  
   'subscribe': function(req, res, next){
       
     
@@ -111,6 +122,31 @@ module.exports = {
       }
     
 
+  },
+  'invite': function(req, res, next){
+    User.findOne({nickname:req.body.name}).exec(function(err, user){  
+      if (!user){
+         return res.send({text:"Your friend doesn`t exist"});
+      } else {
+        var params = {};
+        params.from_user = req.session.User.id;
+        params.to_user = user.id;
+        Invite.destroy(params, function(){
+          if (err)
+             return res.send({text:"Invite failed"});
+          else {
+            params.path = req.body.path; 
+            Invite.create(params, function(err, invite){
+              if (err)
+                return res.send({text:"Invite failed"});
+              else 
+                return res.send({text:"Invite sent"});          
+            });             
+          }            
+        });
+      }
+    })
+    
   },
 
   'draw': function(req, res, next){

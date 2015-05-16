@@ -153,12 +153,11 @@ $(document).ready(function() {
       $.post("/picture/save", {name:fileName, data:dt, _csrf: e._csrf}, function(ans){
         changeMessage(ans.text);     
       });
-      $('#saveModal').modal('hide');  
-      
-      
+      $('#saveModal').modal('hide');     
     });    
-
   }); 
+  
+
     
 
   
@@ -208,10 +207,26 @@ function updateRoom(rid, uid){
 }
 
 function prepareInviteDialog(rid,msg){
-  var dialog = $( "#linkInviteModalBody" );    
-  dialog.text("http://localhost:1337/canvas/draw/"+rid); 
+  var dialog = $( "#linkInviteModalBody" );  
+  var link = "http://localhost:1337/canvas/draw/"+rid;
+  dialog.text(link); 
   $( "#inviteActions" ).show();
   $( "#networkMessage" ).text(msg);
+  
+  $("#invite").click(function(){
+   $.ajax({type:"GET", url:"/csrfToken"}).done(function(e){
+      var dt = canvas.toDataURL();  
+      var friendName = $("#friendName").val();
+      
+      console.log(friendName);
+      $.post("/canvas/invite", {path:link, name:friendName, _csrf: e._csrf}, function(ans){
+        changeMessage(ans.text);     
+      });
+      $('#nameInviteModal').modal('hide');     
+    });  
+  }); 
+  
+  
   
 }
 

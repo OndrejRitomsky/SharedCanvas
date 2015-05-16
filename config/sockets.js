@@ -125,7 +125,7 @@ module.exports.sockets = {
     if (!socket.id){
       return cb();
     }
-    
+    console.log();
     Canvas.findOne().where({ userSocket: socket.id }).exec(function(err, canvas) {      
         if (err) return next(err);
         var room = serverSharedCanvas.isInRoom(socket.id);        
@@ -140,11 +140,22 @@ module.exports.sockets = {
             return cb();            
           }  
         }
+     
+      
+        
         Canvas.destroy({userSocket: socket.id }, function(err, res){ 
           if(res){
             console.log("deleted");
-            serverSharedCanvas.deleteRoom(socket.id, canvas.id);   
-            return cb();
+            serverSharedCanvas.deleteRoom(socket.id, canvas.id); 
+            if (session.authenthicated){
+              console.log(session.User.id); 
+              Invite.destroy({from_user: session.User.id}).exec(function(err,invites){
+                console.log("destroyed",invites);
+                return cb();
+              })
+            } else {
+              return cb();
+            }            
           } else {
             console.log("not deleted");
             return cb();
