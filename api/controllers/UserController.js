@@ -16,11 +16,12 @@ module.exports = {
   'create': function(req, res, next){
     
     User.create(req.params.all(), function userCreated(err, user){
+
       if (err) {
         req.session.flash = {
           err: err
         }
-        
+       
         return res.redirect('/user/registration');
       }
       req.session.authenthicated = true;

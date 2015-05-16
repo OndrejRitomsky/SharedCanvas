@@ -28,9 +28,9 @@ module.exports.policies = {
 
   '*': 'flash',
   
-  UserController:{
+  /*UserController:{
     'view': 'sessionAuth'    
-  }
+  }*/
   
 
   /***************************************************************************

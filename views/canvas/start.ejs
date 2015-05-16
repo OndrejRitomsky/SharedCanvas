@@ -3,9 +3,17 @@
     
     <div class="row">
       <div class="col-md-12">
+          <% if(flash && flash.err){ %>
+            <ul class="alert alert-warning">
+              <li>Sorry, there are too many canvases running at this moment, please try again later</li>  
+            </ul>
+          <%} %>
         <h1>Start Drawing!</h1>
         <div class="startButtons">
           <a href="/canvas/draw" class="btn btn-primary canvasStartButton" id="newCanvas">New Canvas</a> <br>
+          
+        
+             
           
           <% if (session.authenthicated && pictures.length > 0){  %>
              <h2>Continue with</h2>

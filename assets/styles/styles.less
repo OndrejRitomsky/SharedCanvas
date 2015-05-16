@@ -58,22 +58,26 @@ body {
   margin-top: 10px;  
 
   input{
-    height: 32px;  
+    height: 32px;
+    color: white;
   }
-
-  .btn{
+  input[type=text], input[type=password]{
+    color: black;
+  }
+  .btn, a{
     margin-top: -2px;
-    color: @text2;
+    color: white;
   }
   
   >a {
-    color: @links !important;
+    color: white;
+    height: 32px; 
   }
 }
 .jumbotron {
   background-color: lightgrey;
 }
-#loginForm {
+#loginForm, #regForm{
   margin-left: auto;
   margin-right: auto;
   width: 30%;
@@ -86,7 +90,7 @@ body {
 #login {
   text-align: center;
 
-  input[type="password"], input[type="text"]{
+  input[type="password"], input[type="text"],input[type="email"]{
     width: 80%; 
     color: @text2;
   }

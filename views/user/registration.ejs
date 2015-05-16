@@ -1,25 +1,40 @@
-<form action="/user/create" id="loginForm" method="POST" class="form-sign">
+<form action="/user/create" id="regForm" method="POST" class="form-sign">
   <div id="login">
     <h2>Sign Up</h2>
 
 
     <% if(flash && flash.err) { %>
       <ul class="alert alert-warning">
-    <% Object.keys(flash.err).forEach(function(error) { %>
-      <li><%- JSON.stringify(flash.err[error.message]) %></li>
-    <% }); %>
-    </ul>
+        <% if (flash.err.message){ %>
+        <li><%=flash.err.message %></li>
+        <% } %>
+      <% console.log(flash.err.message);
+        for(var i in flash.err.invalidAttributes){
+          if (i=='email'){
+          %> <li>Incorrect email or email already taken</li><%
+          }
+          if (i=='nickname'){
+          %> <li>Nickname has to have size 3-20, alphanumeric value only and be unique</li> <%
+          }
+          if (i=='password'){
+          %> <li>Password has to match Passwordcheck</li> <%
+          }
+          
+          
+        }
+      %>
+      
+    
+      </ul>
     <% } %>
 
 
-    <input type="text" id="email" name="email" placeholder="email"/> <strong class="error" data-field="email"></strong><br/>
-    <br/>
-    </label><input type="text" id="nickname" name="nickname" placeholder="nickname"/> <strong class="error" data-field="nickname"></strong><br/>
-    <br/>
-    <input type="password" id="password" name="password" placeholder="password" /> <strong class="error" data-field="password"></strong><br/>
-    <br/>
-    </label><input type="password" id="password2" name="password2" placeholder="password again"/> <strong class="error" data-field="password2"></strong>     <br/>
-    <br/>
+    <input type="text" id="email" name="email" placeholder="email"/><br><br>
+   
+    <input type="text" id="nickname" name="nickname" placeholder="nickname"/><br><br>
+    <input type="password" id="password" name="password" placeholder="password"/><br><br>
+    <input type="password" id="password2" name="password2" placeholder="password-check"/> <br><br>
+  
 
 
 

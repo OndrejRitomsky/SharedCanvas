@@ -103,7 +103,7 @@ module.exports = {
   
   'gallery': function(req, res, next){
      
-     Picture.find().populate('likes').exec(function(err, pictures){
+     Picture.find().populate('author').populate('likes').exec(function(err, pictures){
   
       if (err) {
         req.session.flash = {
@@ -117,7 +117,7 @@ module.exports = {
           continue;
         var obj = {};
         obj.name = pictures[i].name;
-        obj.author = pictures[i].author;
+        obj.author = pictures[i].author.nickname;
         obj.path = pictures[i].path;
         obj.likes = pictures[i].likes.length;
         

@@ -8,6 +8,10 @@
 var bcrypt = require('bcryptjs');
 
 module.exports = {
+  'login': function(req, res){
+    res.view();
+    
+  },
   'new': function(req, res){
     res.redirect('session/login');
   },
@@ -26,44 +30,40 @@ module.exports = {
       req.session.flash = {
         err: loginValidationError
       }
-      res.redirect('session/new');
-      return;
+      
+      return res.redirect('session/login');
     }
 
     User.findOneByEmail (req.param('email'), function(err, user) {
 
       if (err) return next(err); 
       var userNotFoundError = {message: "Email address or password is wrong"};
-      
+
       if(!user){
         req.session.flash = {
-          err: loginValidationError
+          err: userNotFoundError
         }
       
-        res.redirect('session/new');
-        return;
+        return res.redirect('/session/login');
       }
-      
-      
-      
 
       bcrypt.compare(req.param('password'), user.encPassword, function(err, valid){
         if (err) return next(err);
-
+        var loginValidationError = {message: "Email address or password is wrong"};
         if (!valid){
           req.session.flash = {
             err: loginValidationError
           }
 
-          res.redirect('session/new');
-          return;
+         
+          return res.redirect('/session/login');
         }
         
         req.session.authenthicated = true;
         req.session.User = user;
         
-        res.redirect('/');
-        return;
+        
+        return res.redirect('/');
       });
       
     });

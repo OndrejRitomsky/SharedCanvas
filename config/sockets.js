@@ -120,37 +120,28 @@ module.exports.sockets = {
   *                                                                          *
   ***************************************************************************/
   afterDisconnect: function(session, socket, cb) {
-    
-    console.log("---------------------------------");
+  
     if (!socket.id){
       return cb();
     }
-    console.log();
     Canvas.findOne().where({ userSocket: socket.id }).exec(function(err, canvas) {      
         if (err) return next(err);
         var room = serverSharedCanvas.isInRoom(socket.id);        
         if(!canvas){          
-          console.log("nebol autor");
           if(!room){  
-            console.log("nebol v roomke");
             return cb();
           } else {
-            console.log("bol v roomke");
             serverSharedCanvas.leaveRoom(socket.id,room);
             return cb();            
           }  
-        }
-     
-      
+        }  
         
         Canvas.destroy({userSocket: socket.id }, function(err, res){ 
           if(res){
             console.log("deleted");
             serverSharedCanvas.deleteRoom(socket.id, canvas.id); 
             if (session.authenthicated){
-              console.log(session.User.id); 
               Invite.destroy({from_user: session.User.id}).exec(function(err,invites){
-                console.log("destroyed",invites);
                 return cb();
               })
             } else {

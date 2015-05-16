@@ -146,9 +146,18 @@ $(document).ready(function() {
   $("#downloadLink").bind('click', download);  
   
   $("#saveLink").click(function(){
+    
+    var val = $("#saveFileName").val();
+    for (p in val){
+      if ((val[p] < "A" || val[p] > "Z") && (val[p] < "a" || val[p] > "z") && (val[p]<"0" || val[p]>"9")){
+        changeMessage("Image can contain only letters and number");
+        return;
+      }
+    }
+
     $.ajax({type:"GET", url:"/csrfToken"}).done(function(e){
       var dt = canvas.toDataURL();  
-      var fileName = $("#saveFileName").val();
+      var fileName = val;
       
       $.post("/picture/save", {name:fileName, data:dt, _csrf: e._csrf}, function(ans){
         changeMessage(ans.text);     

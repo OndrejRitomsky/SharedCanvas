@@ -25,7 +25,10 @@ module.exports = {
     nickname: {
       type: 'string',
       required: true,
-      unique: true
+      unique: true,
+      minLength: 3, 
+      maxLength: 20,
+      alphanumeric: true
     }, 
    
     admin: {
@@ -58,8 +61,14 @@ module.exports = {
   },
     
   beforeCreate: function(values, next){
-    if (!values.password || values.password != values.password2){
-      return next({err: {message:"Password doesn`t match password-check"}});
+    if (values.password.length<5){
+       return next({message:"Password too short"});
+    }
+    if (!values.password || !values.password2 ){
+      return next({message:"Password and password-check can`t be empty"});
+    }
+    if (values.password != values.password2){
+      return next({message:"Password doesn`t match password-check"});      
     }
     
     
