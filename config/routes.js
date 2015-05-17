@@ -42,6 +42,14 @@ module.exports.routes = {
     controller: 'UserController',
     action: 'view'
   },
+  '/user/registration': {
+    controller: 'UserController',
+    action: 'registration'
+  },
+  '/user/create': {
+    controller: 'UserController',
+    action: 'create'
+  },
   
   '/session/create': {
     controller: 'SessionController',
@@ -51,8 +59,77 @@ module.exports.routes = {
   '/session/destroy': {
     controller: 'SessionController',
     action: 'destroy'
-  } 
-
+  },
+  '/session/login': {
+    controller: 'SessionController',
+    action: 'login'
+  }, 
+  '/session/new': {
+    controller: 'SessionController',
+    action: 'new'
+  }, 
+  '/picture/save': {
+    controller: 'PictureController',
+    action: 'save'
+  },
+  '/picture/like': {
+    controller: 'PictureController',
+    action: 'like'
+  },
+  '/picture/unlike': {
+    controller: 'PictureController',
+    action: 'unlike'
+  },
+  '/picture/mydelete': {
+    controller: 'PictureController',
+    action: 'mydelete'
+  },
+  '/picture/gallery': {
+    controller: 'PictureController',
+    action: 'gallery'
+  },
+  '/picture/galleryToogle': {
+    controller: 'PictureController',
+    action: 'galleryToogle'
+  },
+  '/canvas/start': {
+    controller: 'CanvasController',
+    action: 'start'
+  },
+  '/canvas/sync': {
+    controller: 'CanvasController',
+    action: 'sync'
+  },
+  '/canvas/update': {
+    controller: 'CanvasController',
+    action: 'update'
+  },
+  '/canvas/decline': {
+    controller: 'CanvasController',
+    action: 'decline'
+  },
+  '/canvas/decline/:id': {
+    controller: 'CanvasController',
+    action: 'decline'
+  },
+  '/canvas/subscribe': {
+    controller: 'CanvasController',
+    action: 'subscribe'
+  },
+  '/canvas/invite': {
+    controller: 'CanvasController',
+    action: 'invite'
+  },
+  '/canvas/draw': {
+    controller: 'CanvasController',
+    action: 'draw'
+  },
+  '/canvas/draw/:id': {
+    controller: 'CanvasController',
+    action: 'draw'
+  }
+  
+ 
   /***************************************************************************
   *                                                                          *
   * Custom routes here...                                                    *

@@ -9,7 +9,8 @@ var serverSharedCanvas = require('./ServerSharedCanvas.js');
 
 module.exports = {
   'start': function(req, res){
-        req.session.authenthicated 
+      
+    
     if (req.session.authenthicated){
       Picture.find().where({author:req.session.User.id}).exec(function(err, pictures){
 
@@ -31,8 +32,11 @@ module.exports = {
     /* we need to check if host didnt close canvas so others dont try to add packages*/
    // console.log(req);
     //console.log(serverSharedCanvas.rooms);
+    if(!req.body){
+      return res.redirect("/");
+    }
     if(!req.body.msg){
-      res.view("/");
+      return res.redirect("/");
     }
     serverSharedCanvas.addPackages(req.body.msg, req.body.rid);
   },
@@ -46,7 +50,10 @@ module.exports = {
   
   
   'decline': function(req, res, next){
-    Invite.destroy({id:req.params.all().id}).exec(function(err,invite){
+    var id= req.session.User.id;
+    if (!req.params.all().id)
+      return res.redirect("/");
+    Invite.destroy({id:req.params.all().id, to_user: id }).exec(function(err,invite){
       res.redirect('user/view');
     });
     
@@ -54,68 +61,76 @@ module.exports = {
   
   'subscribe': function(req, res, next){
       
+    if (!req.session)
+      return res.redirect("/");
     
-      if (!req.session.correctConnect)
-        res.view("/");
-    
-      var author = req.session.author,
-          canvasId = req.session.canvasId,
-          socketId = req.socket.id;
-    
-  
-      
-      if (author && !canvasId && socketId){
-        var params = {};
-        params.userSocket = socketId; // who created this canvas
-        params.loggedOnly = false; // can anybody who knows link join?
+    if (!req.session.correctConnect)
+      return res.redirect("/");
 
-        Canvas.create(params, function canvasCreated(err, canvas){
-          //console.log(canvas);
-          if (err) {
-            res.redirect('/');
-            return;
-          }
-          
-          if(!canvas){
-            res.serverError();  
-            return;
-          } else {
-            /*   var socket = req.socket;
-              var io = sails.io;*/
-            req.socket.join(canvas.id);
+    var author = req.session.author,
+        canvasId = req.session.canvasId,
+        socketId = req.socket.id;
 
-            serverSharedCanvas.createRoom(req.socket, socketId, canvas.id);
-            //serverSharedCanvas.start(sails.io, req.socket, canvas.id);
-            
-          
-            req.session.author = null;
-            req.session.correctConnect = null;
-            req.session.canvasId = null;
-            next();
-          }
-          
-        }); 
-      } else if (!author && canvasId && socketId){
-        console.log(socketId);
-        req.session.author = null;
-        req.session.correctConnect = null;
-        req.session.canvasId = null;
-        
-        serverSharedCanvas.joinRoom(req.socket, socketId, canvasId);
-        
-        Canvas.findOne().where({ id: canvasId }).exec(function(err, canvas) { 
-          console.log("autor je",canvas.userSocket);
-          serverSharedCanvas.tellAuthorToSync(canvas.userSocket);
-        });  
-        //
 
-        
-        next();
-      }
+
+    if (author && !canvasId && socketId){
+      var params = {};
+      params.userSocket = socketId; // who created this canvas
+      params.loggedOnly = false; // can anybody who knows link join?
+
+      Canvas.create(params, function canvasCreated(err, canvas){
+        //console.log(canvas);
+        if (err) {
+          res.redirect('/');
+          return;
+        }
+
+        if(!canvas){
+          res.serverError();  
+          return;
+        } else {
+          /*   var socket = req.socket;
+            var io = sails.io;*/
+          req.socket.join(canvas.id);
+
+          serverSharedCanvas.createRoom(req.socket, socketId, canvas.id);
+          //serverSharedCanvas.start(sails.io, req.socket, canvas.id);
+
+
+          req.session.author = null;
+          req.session.correctConnect = null;
+          req.session.canvasId = null;
+          next();
+        }
+
+      }); 
+    } else if (!author && canvasId && socketId){
+      console.log(socketId);
+      req.session.author = null;
+      req.session.correctConnect = null;
+      req.session.canvasId = null;
+
+      serverSharedCanvas.joinRoom(req.socket, socketId, canvasId);
+
+      Canvas.findOne().where({ id: canvasId }).exec(function(err, canvas) { 
+        console.log("autor je",canvas.userSocket);
+        serverSharedCanvas.tellAuthorToSync(canvas.userSocket);
+      });  
+      //
+
+
+      next();
+    }
     
 
   },
   'invite': function(req, res, next){
+    if (!req.body)
+      return res.redirect("/");
+    if (!req.body.name || !req.body.path)
+      return res.redirect("/");
+    
+    
     User.findOne({nickname:req.body.name}).exec(function(err, user){  
       if (!user){
          return res.send({text:"Your friend doesn`t exist"});
@@ -142,7 +157,7 @@ module.exports = {
   },
 
   'draw': function(req, res, next){
-
+    
     var id = req.params.id;
     req.session.correctConnect = false;
     req.session.author = false;

@@ -28,10 +28,27 @@ module.exports.policies = {
 
   '*': 'flash',
   
-  /*UserController:{
+  UserController:{
     'view': 'sessionAuth'    
-  }*/
+  },
+  SessionController:{
+    'destroy': 'sessionAuth'
+  },
+  PictureController:{
+    'save': 'sessionAuth',
+    'like': 'sessionAuth',
+    'unlike': 'sessionAuth',
+    'mydlete': 'sessionAuth',
+    'galleryToogle': 'sessionAuth'
+  },
   
+  CanvasController:{
+    'decline': 'sessionAuth',
+    'decline/:id': 'sessionAuth',
+    'sync':'sessionAuth',
+    'invite':'sessionAuth',
+    'draw/:id':'sessionAuth'
+  },
 
   /***************************************************************************
   *                                                                          *

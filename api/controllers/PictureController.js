@@ -7,9 +7,15 @@
 var fs = require('fs');
 module.exports = {
   'save': function(req, res, next){    
+     if (!req.body){
+       return res.redirect("/");
+    }
     var name = req.body.name;
     
     var data = req.body.data;
+    if(!name || !data)
+      return res.redirect("/");
+    
     var path = "user_images/"+req.session.User.nickname;
     Picture.destroy().populate('author',{nickname:req.session.User.nickname}).where({name: req.body.name}).exec(function(err, deleted){
       if (err)
@@ -52,8 +58,11 @@ module.exports = {
   },
   
   'mydelete': function(req, res, next){
+    if (!req.body){
+       return res.redirect("/");
+    }
     if (req.body.isSure!="on"){
-      res.redirect('user/view');
+      return res.redirect('user/view');
     }
  
     var user = req.body.name;
@@ -61,6 +70,9 @@ module.exports = {
     var params = {};
     params.author = req.session.User.id;
     params.name = req.body.fileName;
+    if(!user || !params.name)
+      return res.redirect("/");
+    
     Picture.destroy().where(params).exec(function(err, picture){
        if (err)
          res.redirect('user/view');
@@ -80,11 +92,19 @@ module.exports = {
   }, 
   
   'galleryToogle': function(req, res, next){ 
+    if (!req.body){
+       return res.redirect("/");
+    }
+
     var user = req.body.name;
+    
     
     var params = {};
     params.author = req.session.User.id;
     params.name = req.body.fileName;
+    
+    if(!user || !params.name)
+      return res.redirect("/");
     Picture.findOne().where({name:params.name}).populate('author',{id:params.author}).exec(function(err, picture){
       if (err)
          res.redirect('user/view');
@@ -143,7 +163,13 @@ module.exports = {
   
   
   'like': function(req, res, next){
-    Picture.findOne().where({name:req.body.name, author:req.body.author}).exec(function(err, picture){
+    if (!req.body){
+       return res.redirect("/");
+    }
+    if(!req.body.author || !req.body.name)
+      return res.redirect("/");
+    
+    Picture.findOne().populate("author",{nickname: req.body.author}).where({name:req.body.name}).exec(function(err, picture){
       if (!err && picture){
         var params = {};
         params.picture = picture.id;
@@ -151,7 +177,7 @@ module.exports = {
         Like.create(params, function(err, like){
           if (err)
             return res.redirect("picture/gallery");
-          
+          console.log("created");
           return res.send({msg:"created"});
         });
         
@@ -163,7 +189,8 @@ module.exports = {
   },
   
   'unlike': function(req, res, next){    
-    
+     if(!req.body.author)
+       return res.redirect("/");
     Like.destroy().populate("from_user",{name:req.session.id}).populate("picture",{author:req.body.author,               name:req.body.name}).exec(function(err, like){
       if (err){
         return res.serverError();
