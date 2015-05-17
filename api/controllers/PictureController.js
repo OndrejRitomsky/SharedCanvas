@@ -13,6 +13,7 @@ module.exports = {
     var name = req.body.name;
     
     var data = req.body.data;
+    
     if(!name || !data)
       return res.redirect("/");
     
@@ -59,25 +60,26 @@ module.exports = {
   
   'mydelete': function(req, res, next){
     if (!req.body){
-       return res.redirect("/");
+       return res.redirect('/');
     }
     if (req.body.isSure!="on"){
       return res.redirect('user/view');
     }
  
-    var user = req.body.name;
-    
+
     var params = {};
     params.author = req.session.User.id;
     params.name = req.body.fileName;
-    if(!user || !params.name)
-      return res.redirect("/");
+    if(!params.author || !params.name)
+      return res.redirect('user/view');
     
     Picture.destroy().where(params).exec(function(err, picture){
        if (err)
          res.redirect('user/view');
       
-
+      if (picture.length < 1){
+         res.redirect('user/view');
+      }
       fs.unlink(picture[0].path, function(){})
       
       Like.destroy({picture:picture[0].id}).exec(function(err, likes){
@@ -95,16 +97,14 @@ module.exports = {
     if (!req.body){
        return res.redirect("/");
     }
-
-    var user = req.body.name;
-    
-    
+     
     var params = {};
     params.author = req.session.User.id;
     params.name = req.body.fileName;
+
+    if(!params.author || !params.name)
+      return res.redirect("user/view");
     
-    if(!user || !params.name)
-      return res.redirect("/");
     Picture.findOne().where({name:params.name}).populate('author',{id:params.author}).exec(function(err, picture){
       if (err)
          res.redirect('user/view');
@@ -174,13 +174,16 @@ module.exports = {
         var params = {};
         params.picture = picture.id;
         params.from_user = req.session.User.id;  // session
-        Like.create(params, function(err, like){
-          if (err)
-            return res.redirect("picture/gallery");
-          console.log("created");
-          return res.send({msg:"created"});
-        });
-        
+        Like.destroy(params, function(err, desLike){
+          if (err) return res.redirect("picture/gallery");
+                                       
+          Like.create(params, function(err, like){
+            if (err)
+              return res.redirect("picture/gallery");
+            console.log("created");
+            return res.send({msg:"created"});
+          });
+        })
       } else {
         return res.redirect("picture/gallery");
       } 

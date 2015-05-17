@@ -18,6 +18,7 @@ module.exports = {
   
   'destroy': function(req, res, next){
      req.session.destroy();
+    console.log("abc");
      res.redirect('/');
   },
   
