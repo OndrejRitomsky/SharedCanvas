@@ -216,9 +216,11 @@ function updateRoom(rid, uid){
 }
 
 function prepareInviteDialog(rid,msg){
+
   var dialog = $( "#linkInviteModalBody" );  
   var link = "http://localhost:1337/canvas/draw/"+rid;
   dialog.text(link); 
+
   $( "#inviteActions" ).show();
   $( "#networkMessage" ).text(msg);
   
