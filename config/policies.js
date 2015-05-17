@@ -45,7 +45,6 @@ module.exports.policies = {
   CanvasController:{
     'decline': 'sessionAuth',
     'decline/:id': 'sessionAuth',
-    'sync':'sessionAuth',
     'invite':'sessionAuth',
     'draw/:id':'sessionAuth'
   },
