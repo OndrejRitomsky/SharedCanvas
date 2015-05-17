@@ -31,7 +31,7 @@ $(document).ready(function() {
       console.log("yuh");
       canvas.getContext("2d").drawImage(myImage,0,0); // Or at whatever offset you like
     };
-    myImage.src = "http://localhost:1337/"+syncPath;
+    myImage.src = "https://protected-hollows-6072.herokuapp.com/"+syncPath;
   }
   
   
@@ -218,7 +218,7 @@ function updateRoom(rid, uid){
 function prepareInviteDialog(rid,msg){
 
   var dialog = $( "#linkInviteModalBody" );  
-  var link = "http://localhost:1337/canvas/draw/"+rid;
+  var link = "https://protected-hollows-6072.herokuapp.com/canvas/draw/"+rid;
   dialog.text(link); 
 
   $( "#inviteActions" ).show();

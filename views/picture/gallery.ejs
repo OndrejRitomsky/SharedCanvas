@@ -45,7 +45,7 @@
       <%
       for (var i in pictures){ 
         var alt = pictures[i].author+":"+pictures[i].name;
-        var link = "http://localhost:1337/"+pictures[i].path;
+        var link = "https://protected-hollows-6072.herokuapp.com/"+pictures[i].path;
         %>
        
         <a href=<%= link %> title=<%= alt %> data-gallery data-author=<%=pictures[i].author%> data-name=<%=pictures[i].name%> data-likes=<%=                  pictures[i].likes%> data-liked=<%= pictures[i].liked %>>
